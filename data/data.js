@@ -2,6 +2,8 @@ export const SKILLS = [
     {source: "/images/skills/html5.svg", name: "HTML5"},
     {source: "/images/skills/css3.svg", name: "CSS3"},
     {source: "/images/skills/javascript.svg", name: "JavaScript"},
+    {source: "/images/skills/typescript.svg", name: "TypeScript"},
+    {source: "/images/skills/scss.svg", name: "Scss"},
     {source: "/images/skills/bootstrap.svg", name: "Bootstrap 5"},
     {source: "/images/skills/tailwindcss.svg", name: "Tailwind CSS"},
     {source: "/images/skills/jquery.svg", name: "JQuery"},
@@ -15,6 +17,14 @@ export const SKILLS = [
 ]
 
 const PROJECTS = [
+    {
+        img: "/images/projects/lendsqr.png", 
+        title: "Lendsqr Users Dashboard", 
+        description: "Mock simple website for Lendsqr Users Dashboard", 
+        skills: [
+            "/images/skills/react.svg", "/images/skills/typescript.svg", "/images/skills/scss.svg"],
+        link: "https://edward-precious-omegbu-lensqr-fe-test.vercel.app"
+    },
     {
         img: "/images/projects/debt-management.png", 
         title: "Debt Management", 
@@ -60,16 +70,7 @@ const PROJECTS = [
             "/images/skills/jquery.svg", "/images/skills/php.svg"
         ],
         link: "http://omorofan.com.ng"
-    },
-    {
-        img: "/images/projects/countries.png", 
-        title: "World Countries", 
-        description: "World countries cards from an online database", 
-        skills: [
-            "/images/skills/html5.svg", "/images/skills/css3.svg", "/images/skills/javascript.svg", "/images/skills/bootstrap.svg"
-        ],
-        link: "https://codegiyu.github.io/countries"
-    },
+    }
 ]
 
 export default PROJECTS
