@@ -11,3 +11,11 @@
 .perspective-1000 {
     transform: perspective(1000px);
 }
+
+.animation-once {
+    animation-iteration-count: 1;
+}
+
+.animation-infinite {
+    animation-iteration-count: infinite;
+}

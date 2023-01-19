@@ -1,3 +1,5 @@
+import lendsqr from "../public/images/projects/lendsqr.png";
+
 export const SKILLS = [
     {source: "/images/skills/html5.svg", name: "HTML5"},
     {source: "/images/skills/css3.svg", name: "CSS3"},
@@ -5,7 +7,7 @@ export const SKILLS = [
     {source: "/images/skills/typescript.svg", name: "TypeScript"},
     {source: "/images/skills/scss.svg", name: "Scss"},
     {source: "/images/skills/bootstrap.svg", name: "Bootstrap 5"},
-    {source: "/images/skills/tailwindcss.svg", name: "Tailwind CSS"},
+    {source: "/images/skills/tailwindcss.svg", name: "TailwindCSS"},
     {source: "/images/skills/jquery.svg", name: "JQuery"},
     {source: "/images/skills/react.svg", name: "React JS"},
     {source: "/images/skills/nextjs.svg", name: "Next JS"},
@@ -18,7 +20,7 @@ export const SKILLS = [
 
 const PROJECTS = [
     {
-        img: "/images/projects/lendsqr.png", 
+        img: lendsqr, 
         title: "Lendsqr Users Dashboard", 
         description: "Mock simple website for Lendsqr Users Dashboard", 
         skills: [

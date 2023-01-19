@@ -11,7 +11,7 @@ const SkillsBox = ({ props }) => {
     const handleMouseLeave = () => setIsHovered(false)
 
     let imageClass = isHovered ? "animate-[spin_5s_ease-in-out_infinite] transition-all duration-1000" 
-                                : "transition-all duration-1000"
+                                : "transition-all duration-1000 animate-[spin_5s_ease-in-out] animation-once"
 
     return (
         <div className="flex items-center justify-center gap-2 lg:gap-3 min-w-[140px] xs:min-w-[48.5%] sm:min-w-[160px] md:min-w-[160px] 
