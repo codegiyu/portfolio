@@ -10,6 +10,10 @@ const nextConfig = {
             key: 'X-Robots-Tag',
             value: 'index',
           },
+          {
+            key: 'Link',
+            value: ' < https://portfolio-codegiyu.vercel.app >; rel="canonical"',
+          },
         ],
         source: '/:path*',
       });
