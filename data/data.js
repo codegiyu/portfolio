@@ -1,4 +1,4 @@
-import lendsqr from "../public/images/projects/lendsqr.png";
+// import lendsqr from "../public/images/projects/lendsqr.png";
 
 export const SKILLS = [
     {source: "/images/skills/html5.svg", name: "HTML5"},
@@ -14,18 +14,26 @@ export const SKILLS = [
     {source: "/images/skills/nodejs.svg", name: "Node JS"},
     {source: "/images/skills/express.svg", name: "Express JS"},
     {source: "/images/skills/mongodb.svg", name: "Mongo DB"},
-    {source: "/images/skills/php.svg", name: "PHP"},
-    {source: "/images/skills/mysql.svg", name: "MySQL"},
+    // {source: "/images/skills/php.svg", name: "PHP"},
+    // {source: "/images/skills/mysql.svg", name: "MySQL"},
 ]
 
 const PROJECTS = [
     {
-        img: lendsqr, 
+        img: "/images/projects/lendsqr.png", 
         title: "Lendsqr Users Dashboard", 
         description: "Mock simple website for Lendsqr Users Dashboard", 
         skills: [
             "/images/skills/react.svg", "/images/skills/typescript.svg", "/images/skills/scss.svg"],
         link: "https://edward-precious-omegbu-lensqr-fe-test.vercel.app"
+    },
+    {
+        img: "/images/projects/mentro.png", 
+        title: "Mentro", 
+        description: "Mentro mentors picture carousel with neat transitions", 
+        skills: [
+            "/images/skills/react.svg", "/images/skills/scss.svg"],
+        link: "https://mentro-challenge.vercel.app"
     },
     {
         img: "/images/projects/debt-management.png", 
@@ -53,15 +61,6 @@ const PROJECTS = [
             "/images/skills/html5.svg", "/images/skills/css3.svg", "/images/skills/javascript.svg", "/images/skills/bootstrap.svg"
         ],
         link: "https://codegiyu.github.io/games/trivia.html"
-    },
-    {
-        img: "/images/projects/hms.png", 
-        title: "HMS", 
-        description: "Hotel Management System (Group Project for KodeCamp 2.0)", 
-        skills: [
-            "/images/skills/html5.svg", "/images/skills/css3.svg", "/images/skills/javascript.svg", "/images/skills/bootstrap.svg"
-        ],
-        link: "https://codegiyu.github.io/HMS/dashboard.html"
     },
     {
         img: "/images/projects/omorofan.jpg", 
