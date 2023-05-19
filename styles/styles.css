@@ -1004,6 +1004,14 @@ video {
   background-color: rgb(250 250 250 / var(--tw-bg-opacity));
 }
 
+.bg-cover{
+  background-size: cover;
+}
+
+.bg-center{
+  background-position: center;
+}
+
 .py-4{
   padding-top: 1rem;
   padding-bottom: 1rem;
