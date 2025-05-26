@@ -5,7 +5,6 @@ import ErrorBoundary from '@/components/general/ErrorBoundary';
 import { SectionHeader } from '@/components/general/SectionHeader';
 import PROJECTS, { Skill, skillIcons } from '@/lib/constants/data';
 import Image from 'next/image';
-import Link from 'next/link';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Mousewheel, Manipulation, A11y, Pagination, Parallax, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -71,11 +70,11 @@ function ProjectSingle({ img, title, description, skills, liveLink }: ProjectSin
         style={{ backgroundImage: `url(${img})` }}>
         {/* <Image src={ img } alt={title} fill loading="eager" priority /> */}
       </div>
-      <Link href={liveLink}>
+      <a href={liveLink} target="_blank" rel="noopener noreferrer">
         <h3 className="text-red text-2xl lg:text-[32px] hover:underline hover:underline-offset-8 font-bold my-4">
           {title}
         </h3>
-      </Link>
+      </a>
       <p className="text-sm lg:text-base font-semibold">{description}</p>
       <div className="flex justify-center gap-4 lg:gap-8 items-center mt-6">
         {skills.map((skill, idx) => (
