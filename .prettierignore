@@ -1,0 +1,6 @@
+.next
+node_modules
+*.css
+*.json
+*.webmanifest
+*.config.*
