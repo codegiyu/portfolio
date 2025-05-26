@@ -1,5 +1,3 @@
-// import lendsqr from "../public/images/projects/lendsqr.png";
-
 import { SocialMediaLinkProps } from '@/sections/home/AboutSection';
 import { SkillsBoxProps } from '@/sections/home/ServicesSection';
 import { ProjectSingleProps } from '@/sections/home/WorksSection';
@@ -71,7 +69,7 @@ const PROJECTS: ProjectSingleProps[] = [
     title: 'ZedApp Web',
     description: 'Web Application for ZedApp',
     skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
-    liveLink: 'https://web-staging.zedapp.co',
+    liveLink: 'https://app.zedapp.co',
   },
   {
     img: '/images/projects/zed.png',
