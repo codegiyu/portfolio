@@ -8,7 +8,7 @@ export const Footer = () => {
           <Logo size="small" />
         </div>
         <div className="">
-          <p className="text-ash">Copyright &copy; 2022</p>
+          <p className="text-ash">Copyright &copy; {new Date().getFullYear()}</p>
         </div>
       </section>
     </footer>
