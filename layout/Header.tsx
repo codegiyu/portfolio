@@ -8,26 +8,29 @@ import { Menu } from '@/components/icons';
 import { XIcon } from 'lucide-react';
 
 const navBarLinks: NavLinkProps[] = [
-  { href: '#about', text: 'About Me', targetDescriptor: '#about' },
-  { href: '#services', text: 'Services', targetDescriptor: '#services' },
-  { href: '#works', text: 'Works', targetDescriptor: '#works' },
-  { href: '#contact', text: 'Contact Me', targetDescriptor: '#contact' },
+  { href: '/#about', text: 'About Me', targetDescriptor: '#about' },
+  { href: '/#services', text: 'Services', targetDescriptor: '#services' },
+  { href: '/#works', text: 'Works', targetDescriptor: '#works' },
+  { href: '/#contact', text: 'Contact Me', targetDescriptor: '#contact' },
 ];
+const _404NavbarLinks: NavLinkProps[] = [{ href: '/', text: 'Home' }];
 
-// interface HeaderProps {}
+interface HeaderProps {
+  hideNav?: boolean;
+}
 
-const Header = () => {
+const Header = ({ hideNav }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="w-full bg-darkBg sticky top-0 z-50">
       <section
-        className={`w-full container flex justify-between items-center font-montserrat py-7 z-10`}>
+        className={`w-full container flex justify-between items-center font-montserrat py-4 z-10`}>
         <div>
           <Logo />
         </div>
 
-        <Nav links={navBarLinks} />
+        <Nav links={hideNav ? _404NavbarLinks : navBarLinks} />
 
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger className="w-fit lg:hidden outline-none" asChild>
@@ -57,7 +60,7 @@ const Header = () => {
                   </div>
                   <nav className="">
                     <ul className="grid gap-8 text-white">
-                      {navBarLinks.map((item, idx) => (
+                      {(hideNav ? _404NavbarLinks : navBarLinks).map((item, idx) => (
                         <NavLink key={idx} {...item} afterClick={() => setMenuOpen(false)} />
                       ))}
                     </ul>
@@ -97,25 +100,31 @@ function Nav({ links, isMobileNav = false }: NavProps) {
 interface NavLinkProps {
   href: string;
   text: string;
-  targetDescriptor: string;
+  targetDescriptor?: string;
   afterClick?: () => void;
 }
 
-function NavLink({ targetDescriptor, text, afterClick }: NavLinkProps) {
+function NavLink({ targetDescriptor, href, text, afterClick }: NavLinkProps) {
   return (
     <li>
       <Button
         variant="ghost"
         size="icon"
         className="hover:text-red"
-        onClick={() => {
-          const element = document.querySelector(targetDescriptor);
-          afterClick?.();
+        {...(targetDescriptor
+          ? {
+              onClick: () => {
+                const element = document.querySelector(targetDescriptor);
+                afterClick?.();
 
-          if (!element) return;
+                if (!element) return;
 
-          element.scrollIntoView({ behavior: 'smooth' });
-        }}>
+                element.scrollIntoView({ behavior: 'smooth' });
+              },
+            }
+          : {
+              href,
+            })}>
         {text}
       </Button>
     </li>

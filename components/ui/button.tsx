@@ -9,14 +9,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-dark-secondary',
+        default: 'bg-red/80 text-white hover:bg-red',
         secondary: 'bg-dark-primary text-primary-green',
         ghost: '',
       },
       size: {
-        default: 'px-[1.875rem] py-5 rounded-full gap-2',
+        default: 'px-[1.875rem] py-5 rounded-[10px] gap-2',
         icon: '',
-        full: 'w-full px-[1.875rem] py-5 rounded-full gap-2',
+        full: 'w-full px-[1.875rem] py-5 rounded-[10px] gap-2',
       },
     },
     defaultVariants: {

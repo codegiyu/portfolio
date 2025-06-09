@@ -1,6 +1,8 @@
 import { SocialMediaLinkProps } from '@/sections/home/AboutSection';
+import { ContactDisplayProps } from '@/sections/home/ContactSection';
 import { SkillsBoxProps } from '@/sections/home/ServicesSection';
 import { ProjectSingleProps } from '@/sections/home/WorksSection';
+import { Phone } from 'lucide-react';
 
 export const socialMediaLinks: SocialMediaLinkProps[] = [
   {
@@ -19,9 +21,17 @@ export const socialMediaLinks: SocialMediaLinkProps[] = [
     alt: 'linkedin',
   },
   {
-    link: 'https://wa.me/2349123850193',
+    link: 'https://wa.me/+2348140629487',
     imgSrc: '/images/whatsapp.svg',
     alt: 'whatsapp',
+  },
+];
+
+export const contactInfo: ContactDisplayProps[] = [
+  {
+    Icon: Phone,
+    text: '+234 814 062 9487',
+    value: '+2348140629487',
   },
 ];
 
@@ -51,14 +61,14 @@ export const SKILLS: SkillsBoxProps[] = [
   { skill: 'Javascript' },
   { skill: 'Typescript' },
   { skill: 'SCSS' },
-  { skill: 'Bootstrap 5' },
+  // { skill: 'Bootstrap 5' },
   { skill: 'TailwindCSS' },
-  { skill: 'JQuery' },
+  // { skill: 'JQuery' },
   { skill: 'React' },
   { skill: 'Next JS' },
   { skill: 'Node.js' },
-  { skill: 'Express JS' },
-  { skill: 'Mongo DB' },
+  // { skill: 'Express JS' },
+  // { skill: 'Mongo DB' },
   // { skill: "PHP" },
   // { skill: "MySQL" },
 ];

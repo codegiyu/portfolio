@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import Providers from './Providers';
 
 export const metadata: Metadata = {
   title: 'CodeGiyu - React Frontend Developer',
@@ -59,8 +60,8 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="canonical" href="https://portfolio-codegiyu.vercel.app/" />
       </head>
-      <body className={`antialiased w-full min-h-full bg-darkBg font-poppins grid`}>
-        {children}
+      <body className={`antialiased w-full min-h-full bg-darkBg text-light font-poppins grid`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

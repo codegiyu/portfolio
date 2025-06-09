@@ -1,15 +1,48 @@
+'use client';
+
+import { GiyuButton } from '@/components/atoms/GiyuButton';
 import { CircleLink } from '@/components/general/CircleLink';
 import { socialMediaLinks } from '@/lib/constants/data';
+import { FileText } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export const AboutSection = () => {
+  const handleCVDownload = () => {
+    const info = {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      language: navigator.language,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      screen: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      },
+    };
+
+    fetch('/api/contact', {
+      method: 'POST',
+      body: JSON.stringify({
+        isCVDownload: true,
+        message: JSON.stringify(info, null, 2),
+      }),
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+      },
+    });
+    const link = document.createElement('a');
+    link.download = 'Edward-Precious Omegbu - Frontend Engineer CV.pdf';
+    link.href = '/files/codegiyu-cv.pdf';
+    link.click();
+  };
+
   return (
     <section id="about" className="w-full py-12">
       <div className="container flex flex-col items-center gap-10 lg:flex-row lg:gap-16 lg:items-center lg:justify-between">
         {/* Intro */}
         <div className="w-full max-w-[600px] flex flex-col gap-6 lg:gap-12">
-          <div className="flex flex-col gap-10 font-montserrat text-[rgb(250,250,250)]">
+          <div className="flex flex-col gap-10 font-montserrat text-light">
             <h1 className="text-[30px] md:text-[36px] font-bold leading-[110%]">
               Hi, I&apos;m <span className="text-red">Edward-Precious Omegbu</span>
             </h1>
@@ -25,6 +58,9 @@ export const AboutSection = () => {
             {socialMediaLinks.map((item, idx) => (
               <SocialMediaLink key={idx} {...item} />
             ))}
+            <GiyuButton variant="ghost" size="icon" onClick={handleCVDownload}>
+              <FileText className="size-[22px] lg:size-[30px] text-white" />
+            </GiyuButton>
           </div>
         </div>
 
