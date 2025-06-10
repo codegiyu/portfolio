@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: 'CodeGiyu - React Frontend Developer',
     images: [
       {
-        url: 'https://res.cloudinary.com/diirhfihi/image/upload/c_pad,b_auto:predominant,fl_preserve_transparency/v1669041238/codegiyu2_caxu3o.jpg',
+        url: 'https://i.postimg.cc/PrXgbw0G/Screenshot-2025-06-10-075408.png',
       },
     ],
   },
@@ -36,8 +36,7 @@ export const metadata: Metadata = {
       'Experienced Frontend Developer skilled in React.js, Next.js, and TypeScript. Specializing in high-performance, scalable web applications with modern UI frameworks like TailwindCSS. Passionate about seamless user experiences, real-time data streaming, and optimizing web performance.',
     site: '@TheLonerider20',
     creator: '@TheLonerider20',
-    images:
-      'https://res.cloudinary.com/diirhfihi/image/upload/c_pad,b_auto:predominant,fl_preserve_transparency/v1669041238/codegiyu2_caxu3o.jpg',
+    images: 'https://i.postimg.cc/PrXgbw0G/Screenshot-2025-06-10-075408.png',
   },
 };
 
