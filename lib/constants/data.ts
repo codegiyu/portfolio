@@ -96,40 +96,12 @@ const PROJECTS: ProjectSingleProps[] = [
     liveLink: 'https://edward-precious-omegbu-lensqr-fe-test.vercel.app',
   },
   {
-    img: '/images/projects/mentro.png',
-    title: 'Mentro',
-    description: 'Mentro mentors picture carousel with neat transitions',
-    skills: ['React', 'SCSS'],
-    liveLink: 'https://mentro-challenge.vercel.app',
+    img: '/images/projects/eye-connect.png',
+    title: 'EyeConnect',
+    description: 'Landing page for the EyeConnect Initiative',
+    skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
+    liveLink: 'https://www.eyeconnectglobal.com',
   },
-  // {
-  //   img: '/images/projects/debt-management.png',
-  //   title: 'Debt Management',
-  //   description: 'Mock simple website for Debt Management Office Nigeria',
-  //   skills: ['React', 'TailwindCSS', 'Node.js', 'Express JS', 'TailwindCSS'],
-  //   liveLink: 'https://debt-management.vercel.app',
-  // },
-  // {
-  //   img: '/images/projects/musica.png',
-  //   title: 'Musica',
-  //   description: 'Music streaming website with Spotify API',
-  //   skills: ['React', 'TailwindCSS', 'Javascript'],
-  //   liveLink: 'https://musica-challenge.vercel.app',
-  // },
-  // {
-  //   img: '/images/projects/trivia.PNG',
-  //   title: 'Trivia Quiz',
-  //   description: 'Multichoice tivia quiz with different categories and questions fetched online',
-  //   skills: ['HTML5', 'CSS3', 'Javascript', 'Bootstrap 5'],
-  //   liveLink: 'https://codegiyu.github.io/games/trivia.html',
-  // },
-  // {
-  //   img: '/images/projects/omorofan.jpg',
-  //   title: 'Omorofan',
-  //   description: 'Company website for Omorofan EMT Nig Ltd',
-  //   skills: ['HTML5', 'CSS3', 'Javascript', 'JQuery', 'PHP'],
-  //   liveLink: 'http://omorofan.com.ng',
-  // },
 ];
 
 export default PROJECTS;

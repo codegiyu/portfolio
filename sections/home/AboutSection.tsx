@@ -3,7 +3,6 @@
 import { GiyuButton } from '@/components/atoms/GiyuButton';
 import { CircleLink } from '@/components/general/CircleLink';
 import { socialMediaLinks } from '@/lib/constants/data';
-import { FileText } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -13,6 +12,10 @@ export const AboutSection = () => {
       userAgent: navigator.userAgent,
       platform: navigator.platform,
       language: navigator.language,
+      geolocation: navigator.geolocation,
+      maxTouchPoints: navigator.maxTouchPoints,
+      mediaCapabilities: navigator.mediaCapabilities,
+      mediaDevices: navigator.mediaDevices,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       screen: {
         width: window.innerWidth,
@@ -59,7 +62,9 @@ export const AboutSection = () => {
               <SocialMediaLink key={idx} {...item} />
             ))}
             <GiyuButton variant="ghost" size="icon" onClick={handleCVDownload}>
-              <FileText className="size-[22px] lg:size-[30px] text-white" />
+              <div className="relative w-[22px] lg:w-[30px] aspect-square">
+                <Image src="/images/cv.svg" alt="cv" fill loading="eager" />
+              </div>
             </GiyuButton>
           </div>
         </div>

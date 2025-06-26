@@ -15,7 +15,7 @@ export const ContactSection = () => {
         <div className="grid gap-12">
           <SectionHeader
             preheading="Get in Touch"
-            heading="I'd Love to Hear From You"
+            heading="I'd Love to Work With You"
             className="items-center lg:items-start text-center lg:text-start"
           />
           <div className="w-full grid gap-6 justify-items-center lg:justify-items-start">

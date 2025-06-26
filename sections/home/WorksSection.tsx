@@ -63,10 +63,10 @@ export interface ProjectSingleProps {
 function ProjectSingle({ img, title, description, skills, liveLink }: ProjectSingleProps) {
   return (
     <div
-      className="w-full flex-none flex flex-col rounded-[20px] bg-dark text-center text-ash font-montserrat 
+      className="group w-full flex-none flex flex-col rounded-[20px] bg-dark text-center text-ash font-montserrat 
       overflow-hidden pb-8">
       <div
-        className={`w-full aspect-[1.8] relative bg-cover bg-center`}
+        className={`w-full hover:scale-105 aspect-[1.8] relative bg-cover bg-center transition-all duration-500 ease-in-out`}
         style={{ backgroundImage: `url(${img})` }}>
         {/* <Image src={ img } alt={title} fill loading="eager" priority /> */}
       </div>
