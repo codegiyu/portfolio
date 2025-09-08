@@ -13,6 +13,16 @@
     scroll-behavior: smooth;
     font-size: 16px;
   }
+
+  .swiper .swiper-button-next,
+  .swiper .swiper-button-prev {
+    @apply !scale-75 lg:scale-100;
+  }
+
+  /* .swiper-button-next,
+  .swiper-button-prev {
+    @apply scale-50 md:scale-75 lg:scale-100;
+  } */
 }
 
 @layer utilities{

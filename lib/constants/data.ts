@@ -21,7 +21,7 @@ export const socialMediaLinks: SocialMediaLinkProps[] = [
     alt: 'linkedin',
   },
   {
-    link: 'https://wa.me/+2348140629487',
+    link: 'https://wa.me/2348140629487',
     imgSrc: '/images/whatsapp.svg',
     alt: 'whatsapp',
   },
@@ -77,9 +77,17 @@ const PROJECTS: ProjectSingleProps[] = [
   {
     img: '/images/projects/zed-web.png',
     title: 'ZedApp Web',
-    description: 'Web Application for ZedApp',
+    description: 'MVP Web Counterpart Application for ZedApp Mobile App',
     skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
     liveLink: 'https://app.zedapp.co',
+  },
+  {
+    img: 'https://static.pinpoint.ng/site-preview.png',
+    title: 'Pinpoint Global Website',
+    description:
+      'Company website for Pinpoint Global, a branding, marketing and packaging company with headquarters in Abuja',
+    skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
+    liveLink: 'https://pinpoint.ng',
   },
   {
     img: '/images/projects/zed.png',
@@ -87,6 +95,13 @@ const PROJECTS: ProjectSingleProps[] = [
     description: 'Landing page for ZedApp',
     skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
     liveLink: 'https://zedapp.co',
+  },
+  {
+    img: 'https://static.thesolaceinitiative.org/images/site-preview.webp',
+    title: 'The SHE Initiative Landing Page',
+    description: 'Landing page for The Solace Healing and Empowerment Initiative',
+    skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
+    liveLink: 'https://the-shei.vercel.app',
   },
   {
     img: '/images/projects/lendsqr.png',
@@ -97,7 +112,7 @@ const PROJECTS: ProjectSingleProps[] = [
   },
   {
     img: '/images/projects/eye-connect.png',
-    title: 'EyeConnect',
+    title: 'EyeConnect Landing Page',
     description: 'Landing page for the EyeConnect Initiative',
     skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
     liveLink: 'https://www.eyeconnectglobal.com',
