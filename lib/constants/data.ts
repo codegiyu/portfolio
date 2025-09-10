@@ -101,7 +101,7 @@ const PROJECTS: ProjectSingleProps[] = [
     title: 'The SHE Initiative Landing Page',
     description: 'Landing page for The Solace Healing and Empowerment Initiative',
     skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
-    liveLink: 'https://the-shei.vercel.app',
+    liveLink: 'https://thesolaceinitiative.org',
   },
   {
     img: '/images/projects/lendsqr.png',
