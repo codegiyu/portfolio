@@ -74,13 +74,13 @@ export const SKILLS: SkillsBoxProps[] = [
 ];
 
 const PROJECTS: ProjectSingleProps[] = [
-  {
-    img: '/images/projects/zed-web.png',
-    title: 'ZedApp Web',
-    description: 'MVP Web Counterpart Application for ZedApp Mobile App',
-    skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
-    liveLink: 'https://app.zedapp.co',
-  },
+  // {
+  //   img: '/images/projects/zed-web.png',
+  //   title: 'ZedApp Web',
+  //   description: 'MVP Web Counterpart Application for ZedApp Mobile App',
+  //   skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
+  //   liveLink: 'https://app.zedapp.co',
+  // },
   {
     img: 'https://static.pinpoint.ng/site-preview.png',
     title: 'Pinpoint Global Website',
@@ -108,7 +108,7 @@ const PROJECTS: ProjectSingleProps[] = [
     title: 'Lendsqr Users Dashboard',
     description: 'Mock simple website for Lendsqr Users Dashboard',
     skills: ['React', 'Typescript', 'SCSS'],
-    liveLink: 'https://edward-precious-omegbu-lensqr-fe-test.vercel.app',
+    liveLink: 'https://edward-precious-omegbu-lendsqr-fe-test.vercel.app',
   },
   {
     img: '/images/projects/eye-connect.png',

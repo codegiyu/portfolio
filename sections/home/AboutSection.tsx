@@ -36,7 +36,10 @@ export const AboutSection = () => {
     });
     const link = document.createElement('a');
     link.download = 'Edward-Precious Omegbu - Frontend Engineer CV.pdf';
-    link.href = '/files/codegiyu-cv.pdf';
+    // link.href = '/files/codegiyu-cv.pdf';
+    link.href =
+      'https://drive.google.com/file/d/1xOXjqKNRdTGmKQvdp0KMO6kFHD9LYITb/view?usp=sharing';
+    link.target = '_blank';
     link.click();
   };
 
