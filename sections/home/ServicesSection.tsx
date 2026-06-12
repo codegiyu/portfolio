@@ -1,68 +1,78 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
-import { CircleLink } from '@/components/general/CircleLink';
-import { SectionHeader } from '@/components/general/SectionHeader';
 import { Skill, skillIcons, SKILLS } from '@/lib/constants/data';
-import ErrorBoundary from '@/components/general/ErrorBoundary';
+import { ScrollReveal, StaggerReveal } from '@/components/general/ScrollReveal';
 
 export const ServicesSection = () => {
   return (
-    <section id="services" className="w-full py-12 my-12 lg:my-28">
-      <div className="container grid gap-16">
-        <SectionHeader preheading="Services" heading="Skill-Set" />
+    <section id="services" className="w-full py-20 lg:py-28">
+      <div className="container grid gap-14">
 
-        <div className="flex gap-6 lg:items-center">
-          <div className="flex-1">
-            <ErrorBoundary>
-              {/* <div className="flex flex-wrap gap-2 lg:gap-4 w-full"> */}
-              <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-4">
-                {SKILLS.map((item, idx) => (
-                  <SkillsBox key={idx} {...item} />
-                ))}
-              </div>
-            </ErrorBoundary>
-          </div>
+        {/* Header */}
+        <ScrollReveal className="flex flex-col gap-2">
+          <p className="text-ash text-xs font-semibold uppercase tracking-widest">What I work with</p>
+          <h2 className="font-montserrat font-black text-3xl md:text-4xl text-light">
+            Tech Stack
+          </h2>
+          <div className="w-12 h-[3px] bg-red mt-1" />
+        </ScrollReveal>
 
-          <div className="w-auto hidden lg:block">
-            <CircleLink activeIndex={2} />
-          </div>
-        </div>
+        {/* Skills grid */}
+        <StaggerReveal className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
+          {SKILLS.map((item, idx) => (
+            <SkillCard key={idx} skill={item.skill} />
+          ))}
+        </StaggerReveal>
+
+        {/* Specialty areas */}
+        <StaggerReveal className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/[0.06]" stagger={0.1}>
+          <SpecialtyCard
+            label="Mobile"
+            description="React Native & Expo apps for iOS and Android, from MVP to production."
+          />
+          <SpecialtyCard
+            label="Backend"
+            description="Node.js APIs and services with Express, Hono, or Fastify — built to scale."
+          />
+          <SpecialtyCard
+            label="Web"
+            description="Next.js web platforms and marketing sites with performance as a first-class concern."
+          />
+        </StaggerReveal>
+
       </div>
     </section>
   );
 };
 
-export interface SkillsBoxProps {
-  skill: Skill;
-}
-
-function SkillsBox({ skill }: SkillsBoxProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseEnter = () => setIsHovered(true);
-
-  const handleMouseLeave = () => setIsHovered(false);
-
-  const imageClass = isHovered
-    ? 'animate-[spin_5s_ease-in-out] animation-once transition-all duration-1000'
-    : 'transition-all';
-
+function SkillCard({ skill }: { skill: Skill }) {
   return (
-    <div
-      // min-w-[140px] xs:min-w-[48.5%] sm:min-w-[160px] md:min-w-[160px] lg:min-w-[200px] max-w-max
-      className="w-full flex items-center justify-center gap-2 lg:gap-3 
-      py-6 md:py-8 lg:py-12 px-2 lg:px-4 rounded-[8px] bg-dark drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] 
-      transform-style-3d perspective-1000 hover:scale-y-95 z-0"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}>
-      <div className="relative w-9 lg:w-12 aspect-square">
-        <Image src={skillIcons[skill]} fill className={imageClass} alt={skill} loading="eager" />
+    <div className="group flex items-center gap-3 px-4 py-4 bg-dark border border-white/[0.06] rounded-sm hover:border-red/40 transition-all duration-200 hover:translate-y-[-2px]">
+      <div className="relative w-7 h-7 flex-shrink-0">
+        <Image
+          src={skillIcons[skill]}
+          fill
+          className="object-contain group-hover:scale-110 transition-transform duration-200"
+          alt={skill}
+          loading="eager"
+        />
       </div>
-      <p className="text-xs md:text-sm lg:text-[16px] leading-[100%] font-medium font-montserrat text-[#FAFAFA]">
+      <p className="text-xs font-semibold font-montserrat text-light/80 group-hover:text-light transition-colors leading-tight">
         {skill}
       </p>
+    </div>
+  );
+}
+
+function SpecialtyCard({ label, description }: { label: string; description: string }) {
+  return (
+    <div className="flex flex-col gap-3 p-5 bg-dark border border-white/[0.06] rounded-sm">
+      <div className="flex items-center gap-2">
+        <div className="w-[3px] h-5 bg-red rounded-full" />
+        <p className="font-montserrat font-bold text-light text-base">{label}</p>
+      </div>
+      <p className="text-ash text-sm leading-relaxed">{description}</p>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { GiyuButton } from '@/components/atoms/GiyuButton';
-import { CircleLink } from '@/components/general/CircleLink';
+import { ScrollReveal } from '@/components/general/ScrollReveal';
 import { socialMediaLinks } from '@/lib/constants/data';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,82 +10,90 @@ export const AboutSection = () => {
   const handleCVDownload = () => {
     const info = {
       userAgent: navigator.userAgent,
-      platform: navigator.platform,
-      language: navigator.language,
-      geolocation: navigator.geolocation,
-      maxTouchPoints: navigator.maxTouchPoints,
-      mediaCapabilities: navigator.mediaCapabilities,
-      mediaDevices: navigator.mediaDevices,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      screen: {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      },
+      screen: { width: window.innerWidth, height: window.innerHeight },
     };
-
     fetch('/api/contact', {
       method: 'POST',
-      body: JSON.stringify({
-        isCVDownload: true,
-        message: JSON.stringify(info, null, 2),
-      }),
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-      },
+      body: JSON.stringify({ isCVDownload: true, message: JSON.stringify(info, null, 2) }),
+      headers: { 'Content-Type': 'application/json' },
     });
     const link = document.createElement('a');
-    link.download = 'Edward-Precious Omegbu - Frontend Engineer CV.pdf';
-    // link.href = '/files/codegiyu-cv.pdf';
-    link.href =
-      'https://drive.google.com/file/d/1xOXjqKNRdTGmKQvdp0KMO6kFHD9LYITb/view?usp=sharing';
+    link.href = 'https://drive.google.com/file/d/1xOXjqKNRdTGmKQvdp0KMO6kFHD9LYITb/view?usp=sharing';
     link.target = '_blank';
     link.click();
   };
 
   return (
-    <section id="about" className="w-full py-12">
-      <div className="container flex flex-col items-center gap-10 lg:flex-row lg:gap-16 lg:items-center lg:justify-between">
-        {/* Intro */}
-        <div className="w-full max-w-[600px] flex flex-col gap-6 lg:gap-12">
-          <div className="flex flex-col gap-10 font-montserrat text-light">
-            <h1 className="text-[30px] md:text-[36px] font-bold leading-[110%]">
-              Hi, I&apos;m <span className="text-red">Edward-Precious Omegbu</span>
-            </h1>
-            <p className="font-poppins font-normal text-sm lg:text-base leading-[150%] tracking-normal">
-              {/* A.K.A. <span className="text-red text-base lg:text-xl font-semibold">Codegiyu. </span> */}
-              Experienced Frontend Developer skilled in React.js, Next.js, and TypeScript.
-              Specializing in high-performance, scalable web applications with modern UI frameworks
-              like TailwindCSS. Passionate about pixel-perfect UIs, seamless user experiences,
-              real-time data streaming, and optimizing web performance.
+    <section id="about" className="w-full py-20 md:py-28 lg:py-36">
+      <div className="container flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-20">
+
+        {/* Text */}
+        <div className="flex flex-col gap-8 lg:max-w-[600px]">
+          <ScrollReveal className="flex flex-col gap-4">
+            <p className="text-ash font-medium text-sm tracking-widest uppercase">
+              Hi, I&apos;m Edward
             </p>
-          </div>
-          <div className="flex gap-8">
+            <h1 className="font-montserrat font-black text-[clamp(2.5rem,6vw,4.5rem)] leading-[1.1] text-light">
+              Fullstack Product{' '}
+              <span className="text-red">Engineer</span>
+            </h1>
+          </ScrollReveal>
+
+          <ScrollReveal delay={0.1}>
+            <p className="font-poppins text-ash leading-[1.8] text-base max-w-[520px]">
+              I build scalable products end-to-end — mobile apps with React Native & Expo, backends
+              with Node.js, and web platforms with Next.js. I care about architecture, developer
+              experience, and shipping things that actually work.
+            </p>
+          </ScrollReveal>
+
+          {/* CTAs */}
+          <ScrollReveal delay={0.18} className="flex flex-wrap items-center gap-4 pt-2">
+            <Link
+              href="/#contact"
+              onClick={(e) => {
+                if (window.location.pathname === '/') {
+                  e.preventDefault();
+                  document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="inline-flex items-center justify-center px-6 py-3 bg-red text-light text-sm font-semibold font-montserrat transition-all hover:opacity-90 hover:scale-[1.02] active:scale-100">
+              Get In Touch
+            </Link>
+            <GiyuButton
+              variant="outline"
+              size="default"
+              onClick={handleCVDownload}
+              className="px-6 py-3 text-sm font-semibold font-montserrat border-white/20 text-ash hover:border-red hover:text-red">
+              Download CV
+            </GiyuButton>
+          </ScrollReveal>
+
+          {/* Social links */}
+          <ScrollReveal delay={0.24} className="flex items-center gap-5 pt-2">
             {socialMediaLinks.map((item, idx) => (
               <SocialMediaLink key={idx} {...item} />
             ))}
-            <GiyuButton variant="ghost" size="icon" onClick={handleCVDownload}>
-              <div className="relative w-[22px] lg:w-[30px] aspect-square">
-                <Image src="/images/cv.svg" alt="cv" fill loading="eager" />
-              </div>
-            </GiyuButton>
+          </ScrollReveal>
+        </div>
+
+        {/* Image */}
+        <ScrollReveal delay={0.1} y={30} className="w-full max-w-[360px] mx-auto lg:mx-0 lg:w-[380px] xl:w-[420px] flex-shrink-0">
+          <div className="relative">
+            {/* Red accent line */}
+            <div className="absolute -left-3 top-6 bottom-6 w-[3px] bg-red rounded-full" />
+            <Image
+              src="/images/profile.jpg"
+              width={420}
+              height={560}
+              alt="Edward-Precious Omegbu — Fullstack Product Engineer"
+              className="w-full object-cover rounded-sm grayscale hover:grayscale-0 transition-all duration-700"
+              priority
+            />
           </div>
-        </div>
+        </ScrollReveal>
 
-        <div className="w-auto hidden lg:block">
-          <CircleLink activeIndex={1} />
-        </div>
-
-        <div className="w-full md:w-[400px] lg:w-[375px] xl:w-[450px]">
-          <Image
-            src="/images/profile.jpg"
-            width={400}
-            height={535}
-            alt="CodeGiyu - React Frontend Developer"
-            className={'w-full object-cover rounded-[10px] shadow-sm'}
-            priority
-          />
-        </div>
       </div>
     </section>
   );
@@ -99,9 +107,13 @@ export interface SocialMediaLinkProps {
 
 function SocialMediaLink({ link, imgSrc, alt }: SocialMediaLinkProps) {
   return (
-    <Link href={link}>
-      <div className="relative w-[22px] lg:w-[30px] aspect-square">
-        <Image src={imgSrc} alt={alt} fill loading="eager" />
+    <Link
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group w-9 h-9 border border-white/10 rounded flex items-center justify-center hover:border-red/60 transition-colors">
+      <div className="relative w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity">
+        <Image src={imgSrc} alt={alt} fill />
       </div>
     </Link>
   );
