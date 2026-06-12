@@ -8,7 +8,7 @@ const BLOG_DIRECTORY = path.join(process.cwd(), 'content', 'blog');
 
 function requireAdmin(request: NextRequest): boolean {
   const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token);
+  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
 }
 
 export async function GET(request: NextRequest) {

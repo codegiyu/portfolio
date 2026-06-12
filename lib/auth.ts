@@ -1,13 +1,14 @@
-// Pure token helpers — no Node.js or Firebase SDK, safe for Edge runtime
-
-export function isValidMagicLinkToken(token: string): boolean {
+export function isValidMagicLinkToken(token: string, secret: string): boolean {
   if (!token || typeof token !== 'string') return false;
   try {
     const parts = token.split('|');
     if (parts.length !== 3) return false;
-    const tokenTime = parseInt(parts[1]);
+    const [email, timestampStr, hash] = parts;
+    const tokenTime = parseInt(timestampStr);
     if (isNaN(tokenTime)) return false;
-    return Date.now() - tokenTime < 24 * 60 * 60 * 1000; // 24 h
+    if (Date.now() - tokenTime >= 24 * 60 * 60 * 1000) return false;
+    const expectedHash = btoa(`${email}${timestampStr}${secret}`);
+    return hash === expectedHash;
   } catch {
     return false;
   }

@@ -46,9 +46,9 @@ const config = {
         profile: '0 4px 20px rgba(255, 252, 252, 0.25)',
       },
       fontFamily: {
-        montserrat: ['Montserrat', 'sans-serif'],
-        poppins: ['Poppins', 'sans-serif'],
-        lobster: ['Lobster', 'cursive'],
+        montserrat: ['var(--font-montserrat)', 'sans-serif'],
+        poppins: ['var(--font-poppins)', 'sans-serif'],
+        lobster: ['var(--font-lobster)', 'cursive'],
       },
       animation: {
         rebound: 'spring 10s ease-in-out infinite',

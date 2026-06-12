@@ -1,7 +1,5 @@
 import { SocialMediaLinkProps } from '@/sections/home/AboutSection';
 import { ContactDisplayProps } from '@/sections/home/ContactSection';
-import { SkillsBoxProps } from '@/sections/home/ServicesSection';
-import { ProjectSingleProps } from '@/sections/home/WorksSection';
 import { Phone } from 'lucide-react';
 
 export const socialMediaLinks: SocialMediaLinkProps[] = [
@@ -55,7 +53,7 @@ export const skillIcons = {
 
 export type Skill = keyof typeof skillIcons;
 
-export const SKILLS: SkillsBoxProps[] = [
+export const SKILLS: { skill: Skill }[] = [
   { skill: 'HTML5' },
   { skill: 'CSS3' },
   { skill: 'Javascript' },
@@ -72,51 +70,3 @@ export const SKILLS: SkillsBoxProps[] = [
   // { skill: "PHP" },
   // { skill: "MySQL" },
 ];
-
-const PROJECTS: ProjectSingleProps[] = [
-  // {
-  //   img: '/images/projects/zed-web.png',
-  //   title: 'ZedApp Web',
-  //   description: 'MVP Web Counterpart Application for ZedApp Mobile App',
-  //   skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
-  //   liveLink: 'https://app.zedapp.co',
-  // },
-  {
-    img: 'https://static.pinpoint.ng/site-preview.png',
-    title: 'Pinpoint Global Website',
-    description:
-      'Company website for Pinpoint Global, a branding, marketing and packaging company with headquarters in Abuja',
-    skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
-    liveLink: 'https://pinpoint.ng',
-  },
-  {
-    img: '/images/projects/zed.png',
-    title: 'ZedApp Website',
-    description: 'Landing page for ZedApp',
-    skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
-    liveLink: 'https://zedapp.co',
-  },
-  {
-    img: 'https://static.thesolaceinitiative.org/images/site-preview.webp',
-    title: 'The SHE Initiative Landing Page',
-    description: 'Landing page for The Solace Healing and Empowerment Initiative',
-    skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
-    liveLink: 'https://thesolaceinitiative.org',
-  },
-  {
-    img: '/images/projects/lendsqr.png',
-    title: 'Lendsqr Users Dashboard',
-    description: 'Mock simple website for Lendsqr Users Dashboard',
-    skills: ['React', 'Typescript', 'SCSS'],
-    liveLink: 'https://edward-precious-omegbu-lendsqr-fe-test.vercel.app',
-  },
-  {
-    img: '/images/projects/eye-connect.png',
-    title: 'EyeConnect Landing Page',
-    description: 'Landing page for the EyeConnect Initiative',
-    skills: ['React', 'Next JS', 'Typescript', 'TailwindCSS'],
-    liveLink: 'https://www.eyeconnectglobal.com',
-  },
-];
-
-export default PROJECTS;

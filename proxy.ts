@@ -12,7 +12,7 @@ export function proxy(request: NextRequest) {
   ) {
     const token = request.cookies.get('admin_token')?.value;
 
-    if (!token || !isValidMagicLinkToken(token)) {
+    if (!token || !isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret')) {
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = '/admin';
       return NextResponse.redirect(loginUrl);

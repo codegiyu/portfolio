@@ -1,6 +1,28 @@
 import type { Metadata, Viewport } from 'next';
+import { Lobster, Montserrat, Poppins } from 'next/font/google';
 import './globals.css';
 import Providers from './Providers';
+import { PageViewTracker } from '@/components/analytics/PageViewTracker';
+
+const lobster = Lobster({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-lobster',
+});
+
+const montserrat = Montserrat({
+  weight: ['400', '500', '600', '700', '800', '900'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+});
+
+const poppins = Poppins({
+  weight: ['400', '500', '600', '700', '900'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-poppins',
+});
 
 export const metadata: Metadata = {
   title: 'Codegiyu — Fullstack Product Engineer',
@@ -52,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" className={`${lobster.variable} ${montserrat.variable} ${poppins.variable}`} data-scroll-behavior="smooth">
       <head>
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
@@ -85,6 +107,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`antialiased w-full min-h-full bg-darkBg text-light font-poppins grid`}>
+        <PageViewTracker />
         <Providers>{children}</Providers>
       </body>
     </html>

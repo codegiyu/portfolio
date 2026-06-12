@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const { token } = await request.json();
 
-    if (!token || !isValidMagicLinkToken(token)) {
+    if (!token || !isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret')) {
       return NextResponse.json(
         { error: 'Invalid or expired token' },
         { status: 401 }
