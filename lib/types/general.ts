@@ -81,9 +81,79 @@ export interface Project {
   category?: 'web-app' | 'landing' | 'dashboard' | 'mobile' | 'other';
 }
 
+// Settings types
+export interface AboutSettings {
+  greeting: string;
+  name: string;
+  role: string;
+  bio: string;
+  profileImage: string;
+  cvUrl: string;
+}
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+  icon: string;
+  alt: string;
+}
+
+export interface ContactItem {
+  type: string;
+  text: string;
+  value: string;
+}
+
+export interface SkillsSettings {
+  active: string[];
+  icons: Record<string, string>;
+}
+
+export interface SpecialtyCard {
+  label: string;
+  description: string;
+}
+
+// Firestore docs can't be bare arrays, so array-typed settings use a wrapper field.
+export interface SiteSettings {
+  about: AboutSettings;
+  social: { links: SocialLink[] };
+  contact: { items: ContactItem[] };
+  skills: SkillsSettings;
+  specialties: { cards: SpecialtyCard[] };
+}
+
 // Admin types
 export interface AdminUser {
   email: string;
   token: string;
   expiresAt: number;
+}
+
+// Analytics types
+export interface CvDownload {
+  id: string;
+  timestamp: string;
+  ip: string;
+  country?: string;
+  city?: string;
+  browser: string;
+  os: string;
+  device: string;
+  timezone: string;
+  screenWidth: number;
+  screenHeight: number;
+}
+
+export interface PageView {
+  id: string;
+  timestamp: string;
+  ip: string;
+  country?: string;
+  city?: string;
+  browser: string;
+  os: string;
+  device: string;
+  path: string;
+  referrer: string;
 }

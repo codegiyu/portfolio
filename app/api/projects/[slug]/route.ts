@@ -1,23 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { getProjectBySlug } from '@/lib/projects';
 import { isValidMagicLinkToken } from '@/lib/firebase';
+import { getDb } from '@/lib/firestore';
 import { Project } from '@/lib/types/general';
-
-const PROJECTS_FILE = path.join(process.cwd(), 'content', 'projects.json');
 
 function requireAdmin(request: NextRequest): boolean {
   const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token);
+  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const { slug } = await params;
+
+    // Try Firestore first
+    try {
+      const db = getDb();
+      const doc = await db.collection('projects').doc(slug).get();
+      if (doc.exists) {
+        return NextResponse.json(doc.data() as Project, { status: 200 });
+      }
+    } catch {
+      // Firestore unavailable — fall through to local
+    }
+
     const project = getProjectBySlug(slug);
     if (!project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -40,31 +49,34 @@ export async function PUT(
   try {
     const { slug } = await params;
     const body = await request.json();
+    const db = getDb();
 
-    const projects: Project[] = JSON.parse(fs.readFileSync(PROJECTS_FILE, 'utf-8'));
-    const index = projects.findIndex((p) => p.slug === slug);
+    const docRef = db.collection('projects').doc(slug);
+    const existing = await docRef.get();
 
-    if (index === -1) {
+    if (!existing.exists) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    projects[index] = {
-      ...projects[index],
-      title: body.title ?? projects[index].title,
-      description: body.description ?? projects[index].description,
-      longDescription: body.longDescription ?? projects[index].longDescription,
-      image: body.image ?? projects[index].image,
-      skills: body.skills ?? projects[index].skills,
-      challenge: body.challenge ?? projects[index].challenge,
-      solution: body.solution ?? projects[index].solution,
-      results: body.results ?? projects[index].results,
-      liveLink: body.liveLink ?? projects[index].liveLink,
-      sourceLink: body.sourceLink ?? projects[index].sourceLink,
-      featured: body.featured ?? projects[index].featured,
-      category: body.category ?? projects[index].category,
+    const current = existing.data() as Project;
+    const updated: Project = {
+      ...current,
+      title: body.title ?? current.title,
+      description: body.description ?? current.description,
+      longDescription: body.longDescription ?? current.longDescription,
+      image: body.image ?? current.image,
+      gallery: body.gallery ?? current.gallery,
+      skills: body.skills ?? current.skills,
+      challenge: body.challenge ?? current.challenge,
+      solution: body.solution ?? current.solution,
+      results: body.results ?? current.results,
+      liveLink: body.liveLink ?? current.liveLink,
+      sourceLink: body.sourceLink ?? current.sourceLink,
+      featured: body.featured ?? current.featured,
+      category: body.category ?? current.category,
     };
 
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2), 'utf-8');
+    await docRef.set(updated);
 
     return NextResponse.json({ message: 'Project updated', slug }, { status: 200 });
   } catch (error) {
@@ -83,15 +95,15 @@ export async function DELETE(
 
   try {
     const { slug } = await params;
-    const projects: Project[] = JSON.parse(fs.readFileSync(PROJECTS_FILE, 'utf-8'));
-    const index = projects.findIndex((p) => p.slug === slug);
+    const db = getDb();
+    const docRef = db.collection('projects').doc(slug);
+    const existing = await docRef.get();
 
-    if (index === -1) {
+    if (!existing.exists) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    projects.splice(index, 1);
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2), 'utf-8');
+    await docRef.delete();
 
     return NextResponse.json({ message: 'Project deleted' }, { status: 200 });
   } catch (error) {

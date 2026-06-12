@@ -1,15 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { getAllProjects, getProjectsBySkill, searchProjects } from '@/lib/projects';
 import { isValidMagicLinkToken } from '@/lib/firebase';
+import { getDb } from '@/lib/firestore';
 import { Project } from '@/lib/types/general';
-
-const PROJECTS_FILE = path.join(process.cwd(), 'content', 'projects.json');
 
 function requireAdmin(request: NextRequest): boolean {
   const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token);
+  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
+}
+
+async function getProjectsFromFirestore(): Promise<Project[]> {
+  const db = getDb();
+  const snapshot = await db.collection('projects').get();
+  if (snapshot.empty) return [];
+  const projects = snapshot.docs.map((doc) => doc.data() as Project);
+  projects.sort((a, b) => {
+    if (a.featured && !b.featured) return -1;
+    if (!a.featured && b.featured) return 1;
+    return a.title.localeCompare(b.title);
+  });
+  return projects;
 }
 
 export async function GET(request: NextRequest) {
@@ -18,7 +28,33 @@ export async function GET(request: NextRequest) {
     const skill = searchParams.get('skill');
     const query = searchParams.get('q');
 
-    let projects;
+    // Try Firestore first
+    let projects: Project[];
+    try {
+      const all = await getProjectsFromFirestore();
+      if (all.length > 0) {
+        if (query) {
+          const q = query.toLowerCase();
+          projects = all.filter(
+            (p) =>
+              p.title.toLowerCase().includes(q) ||
+              p.description.toLowerCase().includes(q) ||
+              p.skills.some((s) => s.toLowerCase().includes(q))
+          );
+        } else if (skill) {
+          projects = all.filter((p) =>
+            p.skills.some((s) => s.toLowerCase() === skill.toLowerCase())
+          );
+        } else {
+          projects = all;
+        }
+        return NextResponse.json(projects, { status: 200 });
+      }
+    } catch {
+      // Firestore unavailable — fall through to local
+    }
+
+    // Local JSON fallback
     if (query) {
       projects = searchProjects(query);
     } else if (skill) {
@@ -26,7 +62,6 @@ export async function GET(request: NextRequest) {
     } else {
       projects = getAllProjects();
     }
-
     return NextResponse.json(projects, { status: 200 });
   } catch (error) {
     console.error('Error fetching projects:', error);
@@ -54,10 +89,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const projects: Project[] = JSON.parse(fs.readFileSync(PROJECTS_FILE, 'utf-8'));
-
-    if (projects.some((p) => p.slug === slug)) {
-      return NextResponse.json({ error: 'A project with this slug already exists' }, { status: 409 });
+    const db = getDb();
+    const existing = await db.collection('projects').doc(slug).get();
+    if (existing.exists) {
+      return NextResponse.json(
+        { error: 'A project with this slug already exists' },
+        { status: 409 }
+      );
     }
 
     const newProject: Project = {
@@ -78,8 +116,7 @@ export async function POST(request: NextRequest) {
       category: body.category || 'other',
     };
 
-    projects.push(newProject);
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2), 'utf-8');
+    await db.collection('projects').doc(slug).set(newProject);
 
     return NextResponse.json({ message: 'Project created', slug }, { status: 201 });
   } catch (error) {
