@@ -2,13 +2,29 @@
 
 import ErrorBoundary from '@/components/general/ErrorBoundary';
 import { ContactForm } from '@/components/general/ContactForm';
-import { GiyuButton } from '@/components/atoms/GiyuButton';
 import { ScrollReveal } from '@/components/general/ScrollReveal';
 import { useClipboard } from '@/hooks/use-clipboard';
-import { contactInfo } from '@/lib/constants/data';
-import { LucideIcon } from 'lucide-react';
+import type { ContactItem } from '@/lib/types/general';
+import { Phone, Mail, MessageSquare } from 'lucide-react';
+import type { LucideIcon } from '@/lib/types/general';
 
-export const ContactSection = () => {
+interface ContactSectionProps {
+  contact: ContactItem[];
+}
+
+function getIcon(type: string): LucideIcon {
+  switch (type) {
+    case 'email':
+      return Mail;
+    case 'whatsapp':
+    case 'message':
+      return MessageSquare;
+    default:
+      return Phone;
+  }
+}
+
+export const ContactSection = ({ contact }: ContactSectionProps) => {
   return (
     <section id="contact" className="w-full py-20 lg:py-28 bg-dark border-t border-white/[0.06]">
       <div className="container grid gap-16 lg:grid-cols-2 lg:gap-20 items-start">
@@ -32,8 +48,8 @@ export const ContactSection = () => {
           </ScrollReveal>
 
           <ScrollReveal delay={0.18} className="flex flex-col gap-4">
-            {contactInfo.map((item, idx) => (
-              <ContactDisplay key={idx} {...item} />
+            {contact.map((item, idx) => (
+              <ContactDisplay key={idx} item={item} />
             ))}
           </ScrollReveal>
         </div>
@@ -50,26 +66,30 @@ export const ContactSection = () => {
   );
 };
 
-export interface ContactDisplayProps {
-  Icon: LucideIcon;
-  value: string;
-  text: string;
-}
-
-const ContactDisplay = ({ Icon, value, text }: ContactDisplayProps) => {
+function ContactDisplay({ item }: { item: ContactItem }) {
   const { copy } = useClipboard();
+  const Icon = getIcon(item.type);
 
   return (
-    <div className="flex items-center gap-3 group w-fit cursor-pointer" onClick={() => copy(value, { showToast: true })}>
+    <div
+      className="flex items-center gap-3 group w-fit cursor-pointer"
+      onClick={() => copy(item.value, { showToast: true })}>
       <div className="w-9 h-9 border border-white/10 rounded flex items-center justify-center group-hover:border-red/50 transition-colors">
         <Icon className="size-4 text-ash group-hover:text-red transition-colors" />
       </div>
       <span className="text-sm font-semibold text-ash group-hover:text-light transition-colors font-montserrat">
-        {text}
+        {item.text}
       </span>
       <span className="text-xs text-ash/40 group-hover:text-ash/60 transition-colors">
         (click to copy)
       </span>
     </div>
   );
-};
+}
+
+// Kept for external imports that still reference the old shape
+export interface ContactDisplayProps {
+  Icon: LucideIcon;
+  value: string;
+  text: string;
+}

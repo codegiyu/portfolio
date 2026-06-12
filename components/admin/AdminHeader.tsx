@@ -2,11 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FolderIcon, FileTextIcon, LogOutIcon, ExternalLinkIcon } from 'lucide-react';
+import {
+  FolderIcon,
+  FileTextIcon,
+  LogOutIcon,
+  ExternalLinkIcon,
+  BarChart2Icon,
+  SettingsIcon,
+} from 'lucide-react';
 
 const NAV = [
   { href: '/admin/posts', label: 'Posts', Icon: FileTextIcon },
   { href: '/admin/projects', label: 'Projects', Icon: FolderIcon },
+  { href: '/admin/analytics', label: 'Analytics', Icon: BarChart2Icon },
+  { href: '/admin/settings', label: 'Settings', Icon: SettingsIcon },
 ];
 
 export function AdminHeader() {
