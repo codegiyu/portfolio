@@ -37,3 +37,53 @@ export type FormErrors<T extends object> = Partial<Record<keyof T, string[] | un
 export type ValidObjectTypeKey<T extends object, K> = {
   [X in keyof T]: T[X] extends K ? X : never;
 }[keyof T];
+
+// Blog types
+export interface BlogPost {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  date: string;
+  tags: string[];
+  coverImage: string;
+  author?: string;
+  readingTime?: number;
+  published: boolean;
+}
+
+export interface BlogFrontmatter {
+  title: string;
+  date: string;
+  tags: string[];
+  excerpt: string;
+  coverImage: string;
+  author?: string;
+  published?: boolean;
+}
+
+// Project types
+export interface Project {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  longDescription?: string;
+  image: string;
+  gallery?: string[];
+  skills: string[];
+  challenge?: string;
+  solution?: string;
+  results?: string;
+  liveLink?: string;
+  sourceLink?: string;
+  featured: boolean;
+  category?: 'web-app' | 'landing' | 'dashboard' | 'mobile' | 'other';
+}
+
+// Admin types
+export interface AdminUser {
+  email: string;
+  token: string;
+  expiresAt: number;
+}

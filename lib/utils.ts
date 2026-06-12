@@ -20,6 +20,11 @@ export const formatInputNumber = (
   return formattedVal;
 };
 
+export function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 export const countStartingChar = (str: string, char: string) => {
   let count = 0;
 

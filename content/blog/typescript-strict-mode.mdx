@@ -1,0 +1,271 @@
+---
+title: "Why I Always Enable TypeScript Strict Mode"
+date: "2026-03-05"
+tags: ["TypeScript", "Best Practices", "Type Safety"]
+excerpt: "An explanation of why strict mode is essential for writing maintainable TypeScript code, even though it's more strict."
+coverImage: "/images/blog/typescript.png"
+author: "Edward-Precious Omegbu"
+published: true
+---
+
+## The Case for Strict Mode
+
+When I start a new TypeScript project, the first thing I do is enable `strict: true` in `tsconfig.json`. This immediately causes my editor to light up with red squiggles, but it's worth every second of fixing them.
+
+Strict mode catches entire categories of bugs before your code even runs. It's like having a senior developer watching over your shoulder, preventing common mistakes.
+
+## What Strict Mode Enables
+
+Strict mode in TypeScript actually enables several rules:
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    // Which is equivalent to:
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true
+  }
+}
+```
+
+Let's look at each one and why it matters.
+
+## 1. `noImplicitAny`
+
+Without this, TypeScript allows `any` silently:
+
+```typescript
+// Without strict: ALLOWED (but bad)
+function add(a, b) {
+  return a + b;
+}
+
+// With strict: ERROR
+// Parameter 'a' implicitly has an 'any' type
+```
+
+You must be explicit:
+
+```typescript
+function add(a: number, b: number): number {
+  return a + b;
+}
+```
+
+This forces you to think about types and catches the bug where you pass a string:
+
+```typescript
+add("5", 3); // TypeScript error: Argument of type 'string' is not assignable to parameter of type 'number'.
+```
+
+## 2. `strictNullChecks`
+
+This is the rule that prevents the most bugs in my experience.
+
+Without it:
+
+```typescript
+function getUser(id: number) {
+  // Sometimes returns null, sometimes a user
+  return id === 1 ? { name: "Alice" } : null;
+}
+
+const user = getUser(1);
+console.log(user.name); // No error, but crashes if user is null!
+```
+
+With strict mode:
+
+```typescript
+function getUser(id: number): { name: string } | null {
+  return id === 1 ? { name: "Alice" } : null;
+}
+
+const user = getUser(1);
+console.log(user.name); // ERROR: Object is possibly 'null'.
+```
+
+Now you must handle the null case:
+
+```typescript
+const user = getUser(1);
+if (user) {
+  console.log(user.name); // Safe!
+}
+
+// Or use optional chaining:
+console.log(user?.name);
+```
+
+This catches the majority of runtime errors in JavaScript: "Cannot read property X of undefined/null".
+
+## 3. `strictFunctionTypes`
+
+This makes function parameter types contravariant (get more strict), preventing subtle bugs:
+
+```typescript
+// Without strict: ALLOWED (!)
+function handleEvent(cb: (event: MouseEvent) => void) {
+  // ...
+}
+
+function onAnyEvent(event: Event) {
+  console.log(event.timeStamp);
+}
+
+// This type-checks without strict, but breaks at runtime
+// because onAnyEvent expects Event but gets MouseEvent
+handleEvent(onAnyEvent as any);
+```
+
+With strict mode, TypeScript catches this:
+
+```typescript
+// ERROR: Type '(event: Event) => void' is not assignable to 
+// type '(event: MouseEvent) => void'.
+handleEvent(onAnyEvent);
+```
+
+## 4. `strictPropertyInitialization`
+
+This forces you to initialize class properties:
+
+```typescript
+class User {
+  name: string; // ERROR: Property 'name' has no initializer
+  
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+```
+
+Without strict, you could forget to set it, causing undefined errors later:
+
+```typescript
+class User {
+  name: string;
+  
+  constructor(name: string) {
+    // Oops, forgot to set this.name!
+  }
+}
+
+const user = new User("Alice");
+console.log(user.name); // undefined!
+```
+
+With strict, you must initialize:
+
+```typescript
+class User {
+  name: string;
+  
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+```
+
+Or use definite assignment assertion if you know better:
+
+```typescript
+class User {
+  name!: string; // I promise this will be set
+  
+  init(name: string) {
+    this.name = name;
+  }
+}
+```
+
+## The Workflow: Embrace the Red Squiggles
+
+When I enable strict mode on an existing codebase, my editor lights up with hundreds of errors. This looks bad, but it's actually beautiful:
+
+**Every error is a potential runtime bug that TypeScript caught for you.**
+
+Instead of dreading the errors, I embrace them:
+
+1. **Fix nullability issues first** - Add `| null` or `| undefined` checks
+2. **Type function parameters** - Remove implicit `any`
+3. **Handle edge cases** - Null checks force you to think about error paths
+4. **Fix property initialization** - Ensure all properties are set
+
+After an hour of fixing, you've eliminated an entire class of bugs that would've cost hours to debug in production.
+
+## Real-World Example
+
+Here's a real bug I caught with strict mode:
+
+```typescript
+// API response type
+interface User {
+  id: number;
+  name: string;
+  email?: string; // optional
+}
+
+// Buggy code (without strict checks):
+function formatUser(user: User) {
+  return `${user.name} <${user.email}>`; // Crash if email missing!
+}
+
+// Fixed with strict mode:
+function formatUser(user: User) {
+  return `${user.name} <${user.email || "no-email"}>`;
+}
+```
+
+In production, a user without an email would crash this function. Strict mode forced me to handle it.
+
+## The Cost vs. Benefit
+
+**Cost:** 10-20% more typing, more time upfront on a new project.
+
+**Benefit:** 80% fewer runtime type errors, easier refactoring, better code documentation (types are documentation).
+
+That's a phenomenal tradeoff.
+
+## My Recommendation
+
+**Always use `strict: true`.** Don't enable it gradually—it's like pulling off a band-aid. Enable it, fix all the errors in one sitting, and move forward.
+
+Your future self (and your users) will thank you.
+
+---
+
+## TypeScript Config I Use
+
+Here's my starting `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
+```
+
+Happy coding! 🎯

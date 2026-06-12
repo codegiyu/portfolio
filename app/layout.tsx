@@ -3,9 +3,9 @@ import './globals.css';
 import Providers from './Providers';
 
 export const metadata: Metadata = {
-  title: 'CodeGiyu - React Frontend Developer',
+  title: 'Codegiyu — Fullstack Product Engineer',
   description:
-    'Experienced Frontend Developer skilled in React.js, Next.js, and TypeScript. Specializing in high-performance, scalable web applications with modern UI frameworks like TailwindCSS. Passionate about seamless user experiences, real-time data streaming, and optimizing web performance.',
+    'Edward-Precious Omegbu is a fullstack product engineer building scalable mobile apps, web platforms, and APIs with React Native, Next.js, and Node.js.',
 
   robots: 'index, follow, max-image-preview:large',
   authors: [
@@ -18,10 +18,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'profile',
     url: 'https://portfolio-codegiyu.vercel.app',
-    title: 'CodeGiyu - React Frontend Developer',
+    title: 'Codegiyu — Fullstack Product Engineer',
     description:
-      'Experienced Frontend Developer skilled in React.js, Next.js, and TypeScript. Specializing in high-performance, scalable web applications with modern UI frameworks like TailwindCSS. Passionate about seamless user experiences, real-time data streaming, and optimizing web performance.',
-    siteName: 'CodeGiyu - React Frontend Developer',
+      'Edward-Precious Omegbu is a fullstack product engineer building scalable mobile apps, web platforms, and APIs with React Native, Next.js, and Node.js.',
+    siteName: 'Codegiyu',
     images: [
       {
         url: 'https://i.postimg.cc/PrXgbw0G/Screenshot-2025-06-10-075408.png',
@@ -31,9 +31,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: 'summary_large_image',
-    title: 'CodeGiyu - React Frontend Developer',
+    title: 'Codegiyu — Fullstack Product Engineer',
     description:
-      'Experienced Frontend Developer skilled in React.js, Next.js, and TypeScript. Specializing in high-performance, scalable web applications with modern UI frameworks like TailwindCSS. Passionate about seamless user experiences, real-time data streaming, and optimizing web performance.',
+      'Edward-Precious Omegbu is a fullstack product engineer building scalable mobile apps, web platforms, and APIs with React Native, Next.js, and Node.js.',
     site: '@TheLonerider20',
     creator: '@TheLonerider20',
     images: 'https://i.postimg.cc/PrXgbw0G/Screenshot-2025-06-10-075408.png',
@@ -52,12 +52,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="canonical" href="https://portfolio-codegiyu.vercel.app/" />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Codegiyu Blog"
+          href="/feed.xml"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Person',
+              name: 'Edward-Precious Omegbu',
+              url: 'https://portfolio-codegiyu.vercel.app',
+              sameAs: [
+                'https://github.com/codegiyu',
+                'https://x.com/TheLonerider20',
+                'https://linkedin.com/in/edward-precious-omegbu',
+              ],
+              jobTitle: 'Fullstack Product Engineer',
+              description:
+                'Fullstack product engineer building scalable mobile apps, web platforms, and APIs with React Native, Next.js, and Node.js.',
+            }),
+          }}
+        />
       </head>
       <body className={`antialiased w-full min-h-full bg-darkBg text-light font-poppins grid`}>
         <Providers>{children}</Providers>

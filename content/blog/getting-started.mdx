@@ -1,0 +1,258 @@
+---
+title: "Getting Started with React Native and Expo"
+date: "2026-03-10"
+tags: ["React Native", "Expo", "Mobile Development", "Getting Started"]
+excerpt: "A comprehensive guide to setting up your first React Native app with Expo, covering everything from installation to deploying on app stores."
+coverImage: "/images/blog/react-native.png"
+author: "Edward-Precious Omegbu"
+published: true
+---
+
+## Why React Native?
+
+React Native allows you to build mobile apps for iOS and Android using JavaScript and React. Expo simplifies this even further by handling the native code complexity, letting you focus on building your app.
+
+In this guide, I'll walk you through setting up a new React Native project with Expo, building your first screen, and understanding the core concepts.
+
+## Prerequisites
+
+Before starting, make sure you have:
+- Node.js (v16+) installed
+- npm or yarn as your package manager
+- A code editor (VS Code recommended)
+- Either Expo Go app on your phone or an iOS/Android emulator
+
+## Step 1: Install Expo CLI
+
+```bash
+npm install -g expo-cli
+```
+
+This gives you the `expo` command globally. Verify it worked:
+
+```bash
+expo --version
+```
+
+## Step 2: Create Your First Project
+
+```bash
+expo create MyFirstApp
+cd MyFirstApp
+```
+
+This scaffolds a new Expo project with a basic structure. Let's see what was created:
+
+```bash
+ls -la
+```
+
+You should see:
+- `App.js` - Your main app component
+- `app.json` - Configuration file (name, version, etc.)
+- `package.json` - Dependencies and scripts
+- `.expo/` - Expo configuration
+
+## Step 3: Start the Development Server
+
+```bash
+npm start
+# or
+expo start
+```
+
+This starts the Expo development server. You'll see a QR code in your terminal. 
+
+### Running on your phone
+
+Scan the QR code with Expo Go app (iOS/Android). Your app will load instantly.
+
+### Running in an emulator
+
+Press `i` for iOS simulator or `a` for Android emulator.
+
+## Understanding the Structure
+
+Open `App.js` in your editor. You'll see something like:
+
+```jsx
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View } from 'react-native';
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Text>Open up App.js to start working on your app!</Text>
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+```
+
+**Key differences from web React:**
+
+- `View` instead of `div` - the basic container
+- `Text` instead of `<p>` or `<span>` - all text must be in Text components
+- `StyleSheet.create()` instead of CSS - creates optimized style objects
+- No `className` - use the `style` prop directly
+
+## Building Your First Screen
+
+Let's modify `App.js` to create a simple counter app:
+
+```jsx
+import { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+
+export default function App() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Counter App</Text>
+      <Text style={styles.count}>{count}</Text>
+      
+      <View style={styles.buttonRow}>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => setCount(count - 1)}
+        >
+          <Text style={styles.buttonText}>-</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => setCount(count + 1)}
+        >
+          <Text style={styles.buttonText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#15161B',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fafafa',
+    marginBottom: 20,
+  },
+  count: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#C81313',
+    marginBottom: 40,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  button: {
+    width: 60,
+    height: 60,
+    backgroundColor: '#C81313',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fafafa',
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+});
+```
+
+Save the file and watch your app hot-reload on your phone or emulator. That's the power of Expo!
+
+## Core Concepts
+
+### Flexbox Layout
+
+React Native uses Flexbox for layout, just like web CSS:
+
+```jsx
+<View style={{ flexDirection: 'row', gap: 10 }}>
+  <View style={{ flex: 1 }} /> {/* Takes 50% */}
+  <View style={{ flex: 1 }} /> {/* Takes 50% */}
+</View>
+```
+
+### Component Reusability
+
+Like web React, break your UI into reusable components:
+
+```jsx
+function Button({ title, onPress }) {
+  return (
+    <TouchableOpacity style={styles.button} onPress={onPress}>
+      <Text style={styles.buttonText}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+```
+
+### Navigation
+
+For multi-screen apps, use React Navigation:
+
+```bash
+npm install @react-navigation/native @react-navigation/bottom-tabs
+```
+
+Then in your app:
+
+```jsx
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+// ... define screens ...
+
+const Tab = createBottomTabNavigator();
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Tab.Navigator>
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Settings" component={SettingsScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+}
+```
+
+## What's Next?
+
+Now that you have the basics down:
+
+1. **Learn Navigation** - Build multi-screen apps with React Navigation
+2. **State Management** - Use Zustand or Redux for complex state
+3. **API Integration** - Fetch data from APIs using `fetch` or `axios`
+4. **Storage** - Use AsyncStorage for local data persistence
+5. **Publishing** - Deploy to Apple App Store and Google Play Store via EAS
+
+## Resources
+
+- [Expo Documentation](https://docs.expo.dev)
+- [React Native Docs](https://reactnative.dev)
+- [React Navigation](https://reactnavigation.org)
+
+Happy coding! 🚀
