@@ -11,9 +11,12 @@
     "format": "prettier --write . --ignore-path .prettierignore",
     "format:check": "prettier --check . --ignore-path .prettierignore",
     "checks": "npm run lint && npm run format:check && npm run build",
-    "generate:icons": "npx @svgr/cli --out-dir components/icons --ignore-existing --typescript --replace-attr-values #fff=currentColor,#000=currentColor --jsx-runtime automatic --icon -- public/icons"
+    "generate:icons": "npx @svgr/cli --out-dir components/icons --ignore-existing --typescript --replace-attr-values #fff=currentColor,#000=currentColor --jsx-runtime automatic --icon -- public/icons",
+    "seed": "tsx scripts/seed.ts",
+    "firebase:deploy:indexes": "firebase deploy --only firestore:indexes"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1068.0",
     "@mdx-js/react": "^3.1.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-select": "^2.2.5",
@@ -23,6 +26,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "dotenv": "^16.0.3",
+    "firebase-admin": "^14.0.0",
     "fuse.js": "^7.4.2",
     "gray-matter": "^4.0.3",
     "gsap": "^3.15.0",
@@ -59,6 +63,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "autoprefixer": "^10.4.13",
@@ -71,6 +76,7 @@
     "postcss": "^8.5.10",
     "prettier": "^3.5.3",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.22.4",
     "typescript": "^5.3.3"
   }
 }
