@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
     }
 
     const token = generateMagicLinkToken(email);
-    const magicLink = `${process.env.NEXT_PUBLIC_APP_URL}/admin/verify?token=${encodeURIComponent(token)}`;
+    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://portfolio-codegiyu.vercel.app';
+    const magicLink = `${siteUrl}/admin/verify?token=${encodeURIComponent(token)}`;
 
     await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
