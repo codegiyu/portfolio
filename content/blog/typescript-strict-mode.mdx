@@ -1,10 +1,10 @@
 ---
-title: "Why I Always Enable TypeScript Strict Mode"
-date: "2026-03-05"
-tags: ["TypeScript", "Best Practices", "Type Safety"]
+title: 'Why I Always Enable TypeScript Strict Mode'
+date: '2026-03-05'
+tags: ['TypeScript', 'Best Practices', 'Type Safety']
 excerpt: "An explanation of why strict mode is essential for writing maintainable TypeScript code, even though it's more strict."
-coverImage: "/images/blog/typescript.png"
-author: "Edward-Precious Omegbu"
+coverImage: '/images/blog/typescript.png'
+author: 'Edward-Precious Omegbu'
 published: true
 ---
 
@@ -61,7 +61,7 @@ function add(a: number, b: number): number {
 This forces you to think about types and catches the bug where you pass a string:
 
 ```typescript
-add("5", 3); // TypeScript error: Argument of type 'string' is not assignable to parameter of type 'number'.
+add('5', 3); // TypeScript error: Argument of type 'string' is not assignable to parameter of type 'number'.
 ```
 
 ## 2. `strictNullChecks`
@@ -73,7 +73,7 @@ Without it:
 ```typescript
 function getUser(id: number) {
   // Sometimes returns null, sometimes a user
-  return id === 1 ? { name: "Alice" } : null;
+  return id === 1 ? { name: 'Alice' } : null;
 }
 
 const user = getUser(1);
@@ -84,7 +84,7 @@ With strict mode:
 
 ```typescript
 function getUser(id: number): { name: string } | null {
-  return id === 1 ? { name: "Alice" } : null;
+  return id === 1 ? { name: 'Alice' } : null;
 }
 
 const user = getUser(1);
@@ -127,7 +127,7 @@ handleEvent(onAnyEvent as any);
 With strict mode, TypeScript catches this:
 
 ```typescript
-// ERROR: Type '(event: Event) => void' is not assignable to 
+// ERROR: Type '(event: Event) => void' is not assignable to
 // type '(event: MouseEvent) => void'.
 handleEvent(onAnyEvent);
 ```
@@ -139,7 +139,7 @@ This forces you to initialize class properties:
 ```typescript
 class User {
   name: string; // ERROR: Property 'name' has no initializer
-  
+
   constructor(name: string) {
     this.name = name;
   }
@@ -151,13 +151,13 @@ Without strict, you could forget to set it, causing undefined errors later:
 ```typescript
 class User {
   name: string;
-  
+
   constructor(name: string) {
     // Oops, forgot to set this.name!
   }
 }
 
-const user = new User("Alice");
+const user = new User('Alice');
 console.log(user.name); // undefined!
 ```
 
@@ -166,7 +166,7 @@ With strict, you must initialize:
 ```typescript
 class User {
   name: string;
-  
+
   constructor(name: string) {
     this.name = name;
   }
@@ -178,7 +178,7 @@ Or use definite assignment assertion if you know better:
 ```typescript
 class User {
   name!: string; // I promise this will be set
-  
+
   init(name: string) {
     this.name = name;
   }
@@ -219,7 +219,7 @@ function formatUser(user: User) {
 
 // Fixed with strict mode:
 function formatUser(user: User) {
-  return `${user.name} <${user.email || "no-email"}>`;
+  return `${user.name} <${user.email || 'no-email'}>`;
 }
 ```
 

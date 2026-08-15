@@ -2,14 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { getAllBlogPosts, getBlogPostsByTag, searchBlogPosts } from '@/lib/blog';
-import { isValidMagicLinkToken } from '@/lib/firebase';
+import { requireAdmin } from '@/lib/server/auth/guard';
 
 const BLOG_DIRECTORY = path.join(process.cwd(), 'content', 'blog');
-
-function requireAdmin(request: NextRequest): boolean {
-  const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,9 +30,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const denied = await requireAdmin(request, { requireSameOrigin: true });
+  if (denied) return denied;
 
   try {
     const { slug, title, excerpt, date, tags, coverImage, author, published, content } =

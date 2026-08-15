@@ -22,13 +22,13 @@ export function ProjectGrid({ projects }: ProjectGridProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const categories = useMemo(() => {
-    const cats = new Set(projects.map((p) => p.category).filter(Boolean));
+    const cats = new Set(projects.map(p => p.category).filter(Boolean));
     return Array.from(cats) as string[];
   }, [projects]);
 
   const filtered = useMemo(() => {
     if (!activeCategory) return projects;
-    return projects.filter((p) => p.category === activeCategory);
+    return projects.filter(p => p.category === activeCategory);
   }, [projects, activeCategory]);
 
   return (
@@ -42,8 +42,8 @@ export function ProjectGrid({ projects }: ProjectGridProps) {
           All
           <span className="ml-1.5 text-[10px] opacity-60">({projects.length})</span>
         </FilterButton>
-        {categories.map((cat) => {
-          const count = projects.filter((p) => p.category === cat).length;
+        {categories.map(cat => {
+          const count = projects.filter(p => p.category === cat).length;
           return (
             <FilterButton
               key={cat}
@@ -67,8 +67,11 @@ export function ProjectGrid({ projects }: ProjectGridProps) {
           </button>
         </div>
       ) : (
-        <StaggerReveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" stagger={0.08} y={16}>
-          {filtered.map((project) => (
+        <StaggerReveal
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+          stagger={0.08}
+          y={16}>
+          {filtered.map(project => (
             <ProjectCard key={project.id} project={project} />
           ))}
         </StaggerReveal>
@@ -125,7 +128,7 @@ function ProjectCard({ project }: { project: Project }) {
         </p>
 
         <div className="flex flex-wrap gap-1.5 mt-1">
-          {project.skills.slice(0, 4).map((skill) => (
+          {project.skills.slice(0, 4).map(skill => (
             <span
               key={skill}
               className="text-[10px] font-semibold uppercase tracking-wider text-ash/50 border border-white/[0.06] px-2 py-1">

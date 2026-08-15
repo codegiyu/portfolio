@@ -2,19 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { getBlogPostBySlug } from '@/lib/blog';
-import { isValidMagicLinkToken } from '@/lib/firebase';
+import { requireAdmin } from '@/lib/server/auth/guard';
 
 const BLOG_DIRECTORY = path.join(process.cwd(), 'content', 'blog');
 
-function requireAdmin(request: NextRequest): boolean {
-  const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
-}
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params;
     const post = getBlogPostBySlug(slug);
@@ -28,13 +20,9 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const denied = await requireAdmin(request, { requireSameOrigin: true });
+  if (denied) return denied;
 
   try {
     const { slug } = await params;
@@ -73,9 +61,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const denied = await requireAdmin(request, { requireSameOrigin: true });
+  if (denied) return denied;
 
   try {
     const { slug } = await params;

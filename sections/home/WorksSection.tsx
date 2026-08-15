@@ -13,11 +13,12 @@ export const WorksSection = ({ projects }: WorksSectionProps) => {
   return (
     <section id="works" className="w-full py-20 lg:py-28">
       <div className="container grid gap-12">
-
         {/* Header */}
         <ScrollReveal className="flex items-end justify-between gap-4">
           <div className="flex flex-col gap-2">
-            <p className="text-ash text-xs font-semibold uppercase tracking-widest">Selected work</p>
+            <p className="text-ash text-xs font-semibold uppercase tracking-widest">
+              Selected work
+            </p>
             <h2 className="font-montserrat font-black text-3xl md:text-4xl text-light">
               Recent Projects
             </h2>
@@ -32,7 +33,7 @@ export const WorksSection = ({ projects }: WorksSectionProps) => {
 
         {/* Grid */}
         <StaggerReveal className="grid grid-cols-1 sm:grid-cols-2 gap-5" stagger={0.1}>
-          {projects.map((project) => (
+          {projects.map(project => (
             <ProjectCard key={project.id} project={project} />
           ))}
         </StaggerReveal>
@@ -45,7 +46,6 @@ export const WorksSection = ({ projects }: WorksSectionProps) => {
             View all projects →
           </Link>
         </div>
-
       </div>
     </section>
   );
@@ -58,7 +58,6 @@ function ProjectCard({ project }: { project: Project }) {
       target={project.liveLink ? '_blank' : undefined}
       rel={project.liveLink ? 'noopener noreferrer' : undefined}
       className="group flex flex-col bg-dark border border-white/[0.06] overflow-hidden hover:border-red/40 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
-
       {/* Image */}
       <div
         className="w-full aspect-video bg-cover bg-center overflow-hidden border-b border-white/[0.06]"
@@ -71,11 +70,13 @@ function ProjectCard({ project }: { project: Project }) {
         <h3 className="font-montserrat font-bold text-light text-lg group-hover:text-red transition-colors duration-200 line-clamp-1">
           {project.title}
         </h3>
-        <p className="text-ash text-sm leading-relaxed line-clamp-2 flex-1">{project.description}</p>
+        <p className="text-ash text-sm leading-relaxed line-clamp-2 flex-1">
+          {project.description}
+        </p>
 
         <div className="flex items-center justify-between mt-auto pt-3 border-t border-white/[0.06]">
           <div className="flex flex-wrap gap-1.5">
-            {project.skills.slice(0, 3).map((skill) => (
+            {project.skills.slice(0, 3).map(skill => (
               <span
                 key={skill}
                 className="text-[10px] font-semibold uppercase tracking-wider text-ash/40 border border-white/[0.06] px-1.5 py-0.5">
@@ -88,7 +89,6 @@ function ProjectCard({ project }: { project: Project }) {
           )}
         </div>
       </div>
-
     </a>
   );
 }

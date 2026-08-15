@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllProjects, getProjectsBySkill, searchProjects } from '@/lib/projects';
-import { isValidMagicLinkToken } from '@/lib/firebase';
+import { requireAdmin } from '@/lib/server/auth/guard';
 import { getDb } from '@/lib/firestore';
 import { Project } from '@/lib/types/general';
-
-function requireAdmin(request: NextRequest): boolean {
-  const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
-}
 
 async function getProjectsFromFirestore(): Promise<Project[]> {
   const db = getDb();
   const snapshot = await db.collection('projects').get();
   if (snapshot.empty) return [];
-  const projects = snapshot.docs.map((doc) => doc.data() as Project);
+  const projects = snapshot.docs.map(doc => doc.data() as Project);
   projects.sort((a, b) => {
     if (a.featured && !b.featured) return -1;
     if (!a.featured && b.featured) return 1;
@@ -36,15 +31,13 @@ export async function GET(request: NextRequest) {
         if (query) {
           const q = query.toLowerCase();
           projects = all.filter(
-            (p) =>
+            p =>
               p.title.toLowerCase().includes(q) ||
               p.description.toLowerCase().includes(q) ||
-              p.skills.some((s) => s.toLowerCase().includes(q))
+              p.skills.some(s => s.toLowerCase().includes(q))
           );
         } else if (skill) {
-          projects = all.filter((p) =>
-            p.skills.some((s) => s.toLowerCase() === skill.toLowerCase())
-          );
+          projects = all.filter(p => p.skills.some(s => s.toLowerCase() === skill.toLowerCase()));
         } else {
           projects = all;
         }
@@ -70,9 +63,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const denied = await requireAdmin(request, { requireSameOrigin: true });
+  if (denied) return denied;
 
   try {
     const body = await request.json();

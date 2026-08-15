@@ -8,9 +8,15 @@ export const Footer = () => {
         <Logo size="small" />
 
         <nav className="flex items-center gap-6 text-xs font-semibold text-ash">
-          <Link href="/projects" className="hover:text-red transition-colors">Projects</Link>
-          <Link href="/blog" className="hover:text-red transition-colors">Blog</Link>
-          <Link href="/#contact" className="hover:text-red transition-colors">Contact</Link>
+          <Link href="/projects" className="hover:text-red transition-colors">
+            Projects
+          </Link>
+          <Link href="/blog" className="hover:text-red transition-colors">
+            Blog
+          </Link>
+          <Link href="/#contact" className="hover:text-red transition-colors">
+            Contact
+          </Link>
         </nav>
 
         <p className="text-xs text-ash/60">

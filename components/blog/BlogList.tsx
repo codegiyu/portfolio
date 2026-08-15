@@ -17,7 +17,7 @@ export function BlogList({ initialPosts, tags }: BlogListProps) {
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
-    return initialPosts.filter((post) => {
+    return initialPosts.filter(post => {
       const matchesSearch =
         !search ||
         post.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -36,7 +36,7 @@ export function BlogList({ initialPosts, tags }: BlogListProps) {
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             placeholder="Search posts..."
             className="w-full pl-10 pr-4 py-3 bg-dark border border-white/[0.06] text-light placeholder-ash/40 text-sm focus:outline-none focus:border-red/50 transition-colors font-poppins"
           />
@@ -45,8 +45,11 @@ export function BlogList({ initialPosts, tags }: BlogListProps) {
           <TagButton active={activeTag === null} onClick={() => setActiveTag(null)}>
             All
           </TagButton>
-          {tags.map((tag) => (
-            <TagButton key={tag} active={activeTag === tag} onClick={() => setActiveTag(tag === activeTag ? null : tag)}>
+          {tags.map(tag => (
+            <TagButton
+              key={tag}
+              active={activeTag === tag}
+              onClick={() => setActiveTag(tag === activeTag ? null : tag)}>
               {tag}
             </TagButton>
           ))}
@@ -58,14 +61,17 @@ export function BlogList({ initialPosts, tags }: BlogListProps) {
         <div className="py-20 text-center">
           <p className="text-ash text-lg">No posts found.</p>
           <button
-            onClick={() => { setSearch(''); setActiveTag(null); }}
+            onClick={() => {
+              setSearch('');
+              setActiveTag(null);
+            }}
             className="mt-4 text-sm text-red hover:underline underline-offset-4">
             Clear filters
           </button>
         </div>
       ) : (
         <StaggerReveal className="divide-y divide-white/[0.06]" stagger={0.06} y={14}>
-          {filtered.map((post) => (
+          {filtered.map(post => (
             <BlogCard key={post.slug} post={post} />
           ))}
         </StaggerReveal>
@@ -104,7 +110,7 @@ function BlogCard({ post }: { post: BlogPost }) {
       {/* Text */}
       <div className="flex-1 min-w-0 flex flex-col gap-3">
         <div className="flex flex-wrap gap-2">
-          {post.tags.slice(0, 3).map((tag) => (
+          {post.tags.slice(0, 3).map(tag => (
             <span key={tag} className="text-[10px] font-black uppercase tracking-wider text-ash/50">
               {tag}
             </span>
@@ -119,13 +125,9 @@ function BlogCard({ post }: { post: BlogPost }) {
           {post.title}
         </h2>
 
-        <p className="text-ash text-sm leading-relaxed line-clamp-2 max-w-prose">
-          {post.excerpt}
-        </p>
+        <p className="text-ash text-sm leading-relaxed line-clamp-2 max-w-prose">{post.excerpt}</p>
 
-        <p className="text-xs text-ash/40 font-semibold mt-auto pt-2">
-          {formatDate(post.date)}
-        </p>
+        <p className="text-xs text-ash/40 font-semibold mt-auto pt-2">{formatDate(post.date)}</p>
       </div>
 
       {/* Arrow */}

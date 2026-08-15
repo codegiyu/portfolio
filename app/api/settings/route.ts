@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidMagicLinkToken } from '@/lib/firebase';
+import { requireAdmin } from '@/lib/server/auth/guard';
 import { getAllSettings } from '@/lib/settings';
-
-function requireAdmin(request: NextRequest): boolean {
-  const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
-}
 
 export async function GET() {
   try {
@@ -18,9 +13,8 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const denied = await requireAdmin(request, { requireSameOrigin: true });
+  if (denied) return denied;
 
   // Bulk update — body is a partial SiteSettings object
   try {

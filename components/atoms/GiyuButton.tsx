@@ -15,8 +15,7 @@ import Link from 'next/link';
 import { omit } from 'lodash';
 
 export interface GiyuButtonProps
-  extends ComponentPropsWithRef<'button'>,
-    VariantProps<typeof buttonVariants> {
+  extends ComponentPropsWithRef<'button'>, VariantProps<typeof buttonVariants> {
   LeftIcon?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
   RightIcon?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
   leftIconClass?: string;

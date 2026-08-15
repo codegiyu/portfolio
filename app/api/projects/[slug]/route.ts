@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProjectBySlug } from '@/lib/projects';
-import { isValidMagicLinkToken } from '@/lib/firebase';
+import { requireAdmin } from '@/lib/server/auth/guard';
 import { getDb } from '@/lib/firestore';
 import { Project } from '@/lib/types/general';
-
-function requireAdmin(request: NextRequest): boolean {
-  const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
-}
 
 export async function GET(
   _request: NextRequest,
@@ -38,13 +33,9 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const denied = await requireAdmin(request, { requireSameOrigin: true });
+  if (denied) return denied;
 
   try {
     const { slug } = await params;
@@ -89,9 +80,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const denied = await requireAdmin(request, { requireSameOrigin: true });
+  if (denied) return denied;
 
   try {
     const { slug } = await params;

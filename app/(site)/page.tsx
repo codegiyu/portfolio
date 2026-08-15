@@ -12,7 +12,7 @@ async function getFeaturedProjectsWithFallback(count: number): Promise<Project[]
     const db = getDb();
     const snapshot = await db.collection('projects').where('featured', '==', true).get();
     if (!snapshot.empty) {
-      return snapshot.docs.map((d) => d.data() as Project).slice(0, count);
+      return snapshot.docs.map(d => d.data() as Project).slice(0, count);
     }
   } catch {
     // Firestore unavailable

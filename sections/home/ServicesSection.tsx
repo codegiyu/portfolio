@@ -13,13 +13,12 @@ export const ServicesSection = ({ skills, specialties }: ServicesSectionProps) =
   return (
     <section id="services" className="w-full py-20 lg:py-28">
       <div className="container grid gap-14">
-
         {/* Header */}
         <ScrollReveal className="flex flex-col gap-2">
-          <p className="text-ash text-xs font-semibold uppercase tracking-widest">What I work with</p>
-          <h2 className="font-montserrat font-black text-3xl md:text-4xl text-light">
-            Tech Stack
-          </h2>
+          <p className="text-ash text-xs font-semibold uppercase tracking-widest">
+            What I work with
+          </p>
+          <h2 className="font-montserrat font-black text-3xl md:text-4xl text-light">Tech Stack</h2>
           <div className="w-12 h-[3px] bg-red mt-1" />
         </ScrollReveal>
 
@@ -31,12 +30,13 @@ export const ServicesSection = ({ skills, specialties }: ServicesSectionProps) =
         </StaggerReveal>
 
         {/* Specialty areas */}
-        <StaggerReveal className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/[0.06]" stagger={0.1}>
+        <StaggerReveal
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-white/[0.06]"
+          stagger={0.1}>
           {specialties.map((card, idx) => (
             <SpecialtyCardComp key={idx} {...card} />
           ))}
         </StaggerReveal>
-
       </div>
     </section>
   );

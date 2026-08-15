@@ -1,10 +1,10 @@
 ---
-title: "Getting Started with React Native and Expo"
-date: "2026-03-10"
-tags: ["React Native", "Expo", "Mobile Development", "Getting Started"]
-excerpt: "A comprehensive guide to setting up your first React Native app with Expo, covering everything from installation to deploying on app stores."
-coverImage: "/images/blog/react-native.png"
-author: "Edward-Precious Omegbu"
+title: 'Getting Started with React Native and Expo'
+date: '2026-03-10'
+tags: ['React Native', 'Expo', 'Mobile Development', 'Getting Started']
+excerpt: 'A comprehensive guide to setting up your first React Native app with Expo, covering everything from installation to deploying on app stores.'
+coverImage: '/images/blog/react-native.png'
+author: 'Edward-Precious Omegbu'
 published: true
 ---
 
@@ -17,6 +17,7 @@ In this guide, I'll walk you through setting up a new React Native project with 
 ## Prerequisites
 
 Before starting, make sure you have:
+
 - Node.js (v16+) installed
 - npm or yarn as your package manager
 - A code editor (VS Code recommended)
@@ -48,6 +49,7 @@ ls -la
 ```
 
 You should see:
+
 - `App.js` - Your main app component
 - `app.json` - Configuration file (name, version, etc.)
 - `package.json` - Dependencies and scripts
@@ -61,7 +63,7 @@ npm start
 expo start
 ```
 
-This starts the Expo development server. You'll see a QR code in your terminal. 
+This starts the Expo development server. You'll see a QR code in your terminal.
 
 ### Running on your phone
 
@@ -120,19 +122,13 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>Counter App</Text>
       <Text style={styles.count}>{count}</Text>
-      
+
       <View style={styles.buttonRow}>
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => setCount(count - 1)}
-        >
+        <TouchableOpacity style={styles.button} onPress={() => setCount(count - 1)}>
           <Text style={styles.buttonText}>-</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => setCount(count + 1)}
-        >
+        <TouchableOpacity style={styles.button} onPress={() => setCount(count + 1)}>
           <Text style={styles.buttonText}>+</Text>
         </TouchableOpacity>
       </View>

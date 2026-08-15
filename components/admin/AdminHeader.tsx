@@ -22,9 +22,13 @@ export function AdminHeader() {
   const pathname = usePathname();
   const router = useRouter();
 
-  function handleSignOut() {
-    document.cookie = 'admin_token=; Max-Age=0; path=/';
-    router.push('/admin');
+  async function handleSignOut() {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: { Origin: window.location.origin },
+    });
+    router.replace('/admin');
+    router.refresh();
   }
 
   return (

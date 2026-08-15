@@ -36,7 +36,6 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
   return (
     <section id="about" className="w-full py-20 md:py-28 lg:py-36">
       <div className="container flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-20">
-
         {/* Text */}
         <div className="flex flex-col gap-8 lg:max-w-[600px]">
           <ScrollReveal className="flex flex-col gap-4">
@@ -44,8 +43,7 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
               {about.greeting}
             </p>
             <h1 className="font-montserrat font-black text-[clamp(2.5rem,6vw,4.5rem)] leading-[1.1] text-light">
-              {rolePrefix}{' '}
-              <span className="text-red">{roleLastWord}</span>
+              {rolePrefix} <span className="text-red">{roleLastWord}</span>
             </h1>
           </ScrollReveal>
 
@@ -59,7 +57,7 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
           <ScrollReveal delay={0.18} className="flex flex-wrap items-center gap-4 pt-2">
             <Link
               href="/#contact"
-              onClick={(e) => {
+              onClick={e => {
                 if (window.location.pathname === '/') {
                   e.preventDefault();
                   document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
@@ -86,7 +84,10 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
         </div>
 
         {/* Image */}
-        <ScrollReveal delay={0.1} y={30} className="w-full max-w-[360px] mx-auto lg:mx-0 lg:w-[380px] xl:w-[420px] flex-shrink-0">
+        <ScrollReveal
+          delay={0.1}
+          y={30}
+          className="w-full max-w-[360px] mx-auto lg:mx-0 lg:w-[380px] xl:w-[420px] flex-shrink-0">
           <div className="relative">
             <div className="absolute -left-3 top-6 bottom-6 w-[3px] bg-red rounded-full" />
             <Image
@@ -99,7 +100,6 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
             />
           </div>
         </ScrollReveal>
-
       </div>
     </section>
   );

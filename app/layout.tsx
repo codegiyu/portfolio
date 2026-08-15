@@ -1,28 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { Lobster, Montserrat, Poppins } from 'next/font/google';
 import './globals.css';
 import Providers from './Providers';
 import { PageViewTracker } from '@/components/analytics/PageViewTracker';
-
-const lobster = Lobster({
-  weight: '400',
-  subsets: ['latin'],
-  variable: '--font-lobster',
-});
-
-const montserrat = Montserrat({
-  weight: ['400', '500', '600', '700', '800', '900'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  variable: '--font-montserrat',
-});
-
-const poppins = Poppins({
-  weight: ['400', '500', '600', '700', '900'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
-  variable: '--font-poppins',
-});
+import { lobster, montserrat, poppins } from './fonts';
 
 export const metadata: Metadata = {
   title: 'Codegiyu — Fullstack Product Engineer',
@@ -74,18 +54,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${lobster.variable} ${montserrat.variable} ${poppins.variable}`} data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      className={`${lobster.variable} ${montserrat.variable} ${poppins.variable}`}
+      data-scroll-behavior="smooth">
       <head>
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="canonical" href="https://portfolio-codegiyu.vercel.app/" />
-        <link
-          rel="alternate"
-          type="application/rss+xml"
-          title="Codegiyu Blog"
-          href="/feed.xml"
-        />
+        <link rel="alternate" type="application/rss+xml" title="Codegiyu Blog" href="/feed.xml" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

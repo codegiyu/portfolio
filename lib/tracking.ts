@@ -6,10 +6,11 @@ import type { CvDownload, PageView } from './types/general';
 export function parseUserAgent(ua: string): { browser: string; os: string; device: string } {
   const s = ua.toLowerCase();
 
-  const device =
-    /ipad|tablet/.test(s) ? 'tablet' :
-    /mobile|android|iphone|ipod/.test(s) ? 'mobile' :
-    'desktop';
+  const device = /ipad|tablet/.test(s)
+    ? 'tablet'
+    : /mobile|android|iphone|ipod/.test(s)
+      ? 'mobile'
+      : 'desktop';
 
   let os = 'Unknown';
   if (/android/.test(s)) os = 'Android';
@@ -43,13 +44,8 @@ const LOCAL_IP = /^(127\.|192\.168\.|10\.|::1|unknown)/;
 export async function getGeo(request: Request): Promise<{ country?: string; city?: string }> {
   // Platform-injected headers (Vercel, Cloudflare) — zero latency
   const country =
-    request.headers.get('x-vercel-ip-country') ??
-    request.headers.get('cf-ipcountry') ??
-    null;
-  const city =
-    request.headers.get('x-vercel-ip-city') ??
-    request.headers.get('cf-ipcity') ??
-    null;
+    request.headers.get('x-vercel-ip-country') ?? request.headers.get('cf-ipcountry') ?? null;
+  const city = request.headers.get('x-vercel-ip-city') ?? request.headers.get('cf-ipcity') ?? null;
   if (country) return { country, city: city ?? undefined };
 
   // Fall back to ip-api.com (free, no key required)
@@ -63,7 +59,7 @@ export async function getGeo(request: Request): Promise<{ country?: string; city
       signal: ctrl.signal,
     });
     clearTimeout(timer);
-    const data = await res.json() as { status: string; country?: string; city?: string };
+    const data = (await res.json()) as { status: string; country?: string; city?: string };
     if (data.status === 'success') return { country: data.country, city: data.city };
   } catch {
     // geo unavailable
@@ -80,11 +76,8 @@ export async function recordCvDownload(entry: Omit<CvDownload, 'id'>): Promise<v
 
 export async function getCvDownloads(): Promise<CvDownload[]> {
   const db = getDb();
-  const snap = await db.collection('cv-downloads')
-    .orderBy('timestamp', 'desc')
-    .limit(500)
-    .get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as CvDownload);
+  const snap = await db.collection('cv-downloads').orderBy('timestamp', 'desc').limit(500).get();
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as CvDownload);
 }
 
 // ─── Page views ───────────────────────────────────────────────────────────────
@@ -96,9 +89,6 @@ export async function recordPageView(entry: Omit<PageView, 'id'>): Promise<void>
 
 export async function getPageViews(): Promise<PageView[]> {
   const db = getDb();
-  const snap = await db.collection('analytics')
-    .orderBy('timestamp', 'desc')
-    .limit(1000)
-    .get();
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as PageView);
+  const snap = await db.collection('analytics').orderBy('timestamp', 'desc').limit(1000).get();
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as PageView);
 }

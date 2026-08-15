@@ -14,7 +14,7 @@ export const LOCAL_FALLBACKS: SiteSettings = {
     greeting: "Hi, I'm Edward",
     name: 'Edward',
     role: 'Fullstack Product Engineer',
-    bio: "I build scalable products end-to-end — mobile apps with React Native & Expo, backends with Node.js, and web platforms with Next.js. I care about architecture, developer experience, and shipping things that actually work.",
+    bio: 'I build scalable products end-to-end — mobile apps with React Native & Expo, backends with Node.js, and web platforms with Next.js. I care about architecture, developer experience, and shipping things that actually work.',
     profileImage: '/images/eddy-profile.jpg',
     cvUrl: 'https://drive.google.com/file/d/1xOXjqKNRdTGmKQvdp0KMO6kFHD9LYITb/view?usp=sharing',
   },
@@ -27,14 +27,14 @@ export const LOCAL_FALLBACKS: SiteSettings = {
     })),
   },
   contact: {
-    items: contactInfo.map((item) => ({
+    items: contactInfo.map(item => ({
       type: 'phone',
       text: item.text,
       value: item.value,
     })),
   },
   skills: {
-    active: SKILLS.map((s) => s.skill),
+    active: SKILLS.map(s => s.skill),
     icons: skillIcons,
   },
   specialties: {
@@ -75,9 +75,7 @@ export async function getAllSettings(): Promise<SiteSettings> {
   try {
     const db = getDb();
     const keys = Object.keys(LOCAL_FALLBACKS) as SettingsKey[];
-    const results = await Promise.allSettled(
-      keys.map((k) => db.collection('settings').doc(k).get())
-    );
+    const results = await Promise.allSettled(keys.map(k => db.collection('settings').doc(k).get()));
 
     const merged = { ...LOCAL_FALLBACKS };
     results.forEach((res, i) => {
@@ -93,11 +91,4 @@ export async function getAllSettings(): Promise<SiteSettings> {
   }
 }
 
-export type {
-  AboutSettings,
-  SocialLink,
-  ContactItem,
-  SkillsSettings,
-  SpecialtyCard,
-  SiteSettings,
-};
+export type { AboutSettings, SocialLink, ContactItem, SkillsSettings, SpecialtyCard, SiteSettings };

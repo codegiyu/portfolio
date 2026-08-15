@@ -9,7 +9,7 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const posts = getAllBlogPosts();
-  return posts.map((post) => ({ slug: post.slug }));
+  return posts.map(post => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

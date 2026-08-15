@@ -3,7 +3,11 @@ import { getClientIp, getGeo, parseUserAgent, recordCvDownload } from '@/lib/tra
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as { timezone?: string; screenWidth?: number; screenHeight?: number };
+    const body = (await request.json()) as {
+      timezone?: string;
+      screenWidth?: number;
+      screenHeight?: number;
+    };
     const ua = request.headers.get('user-agent') ?? '';
     const ip = getClientIp(request);
     const geo = await getGeo(request);

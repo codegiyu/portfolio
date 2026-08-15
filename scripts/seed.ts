@@ -28,7 +28,7 @@ const PROJECTS = [
     description:
       'Company website for a branding, marketing and packaging company with headquarters in Abuja',
     longDescription:
-      "Built a modern, responsive company website for Pinpoint Global showcasing their services and portfolio.",
+      'Built a modern, responsive company website for Pinpoint Global showcasing their services and portfolio.',
     image: 'https://static.pinpoint.ng/site-preview.png',
     gallery: [],
     skills: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS'],
@@ -71,7 +71,7 @@ const PROJECTS = [
     description:
       'Landing page for The Solace Healing and Empowerment Initiative, a nonprofit focused on women empowerment in tech',
     longDescription:
-      "Created a compelling landing page for a nonprofit organization dedicated to empowering women in technology.",
+      'Created a compelling landing page for a nonprofit organization dedicated to empowering women in technology.',
     image: 'https://static.thesolaceinitiative.org/images/site-preview.webp',
     gallery: [],
     skills: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS'],
@@ -138,7 +138,7 @@ const SETTINGS = {
     greeting: "Hi, I'm Edward",
     name: 'Edward',
     role: 'Fullstack Product Engineer',
-    bio: "I build scalable products end-to-end — mobile apps with React Native & Expo, backends with Node.js, and web platforms with Next.js. I care about architecture, developer experience, and shipping things that actually work.",
+    bio: 'I build scalable products end-to-end — mobile apps with React Native & Expo, backends with Node.js, and web platforms with Next.js. I care about architecture, developer experience, and shipping things that actually work.',
     profileImage: '/images/eddy-profile.jpg',
     cvUrl: 'https://drive.google.com/file/d/1xOXjqKNRdTGmKQvdp0KMO6kFHD9LYITb/view?usp=sharing',
   },
@@ -168,9 +168,7 @@ const SETTINGS = {
       alt: 'whatsapp',
     },
   ],
-  contact: [
-    { type: 'phone', text: '+234 814 062 9487', value: '+2348140629487' },
-  ],
+  contact: [{ type: 'phone', text: '+234 814 062 9487', value: '+2348140629487' }],
   skills: {
     active: [
       'HTML5',
@@ -263,7 +261,7 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error('Seed failed:', err);
   process.exit(1);
 });

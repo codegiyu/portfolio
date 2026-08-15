@@ -8,14 +8,14 @@ export async function GET() {
 
   const items = posts
     .map(
-      (post) => `
+      post => `
     <item>
       <title><![CDATA[${post.title}]]></title>
       <link>${SITE_URL}/blog/${post.slug}</link>
       <guid isPermaLink="true">${SITE_URL}/blog/${post.slug}</guid>
       <description><![CDATA[${post.excerpt}]]></description>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
-      ${post.tags.map((t) => `<category><![CDATA[${t}]]></category>`).join('\n      ')}
+      ${post.tags.map(t => `<category><![CDATA[${t}]]></category>`).join('\n      ')}
     </item>`
     )
     .join('');

@@ -28,22 +28,21 @@ export const ContactSection = ({ contact }: ContactSectionProps) => {
   return (
     <section id="contact" className="w-full py-20 lg:py-28 bg-dark border-t border-white/[0.06]">
       <div className="container grid gap-16 lg:grid-cols-2 lg:gap-20 items-start">
-
         {/* Left */}
         <div className="flex flex-col gap-10">
           <ScrollReveal className="flex flex-col gap-3">
             <p className="text-ash text-xs font-semibold uppercase tracking-widest">Get in touch</p>
             <h2 className="font-montserrat font-black text-3xl md:text-4xl text-light leading-[1.2]">
-              Let&apos;s build something{' '}
-              <span className="text-red">great</span> together
+              Let&apos;s build something <span className="text-red">great</span> together
             </h2>
             <div className="w-12 h-[3px] bg-red mt-1" />
           </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
             <p className="text-ash leading-relaxed max-w-md">
-              Have a project in mind? Whether it&apos;s a mobile app, backend API, or full-stack platform —
-              I&apos;m most responsive via email, but feel free to reach out however works for you.
+              Have a project in mind? Whether it&apos;s a mobile app, backend API, or full-stack
+              platform — I&apos;m most responsive via email, but feel free to reach out however
+              works for you.
             </p>
           </ScrollReveal>
 
@@ -60,7 +59,6 @@ export const ContactSection = ({ contact }: ContactSectionProps) => {
             <ContactForm />
           </ErrorBoundary>
         </ScrollReveal>
-
       </div>
     </section>
   );

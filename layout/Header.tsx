@@ -38,7 +38,7 @@ const Header = ({ hideNav }: HeaderProps) => {
         {!hideNav && (
           <>
             <nav className="hidden lg:flex items-center gap-8">
-              {navItems.map((item) => (
+              {navItems.map(item => (
                 <NavLink key={item.href} item={item} pathname={pathname} />
               ))}
             </nav>
@@ -71,7 +71,7 @@ const Header = ({ hideNav }: HeaderProps) => {
                       </div>
                       <nav>
                         <ul className="grid gap-6">
-                          {navItems.map((item) => (
+                          {navItems.map(item => (
                             <li key={item.href}>
                               <MobileNavLink
                                 item={item}
@@ -93,7 +93,9 @@ const Header = ({ hideNav }: HeaderProps) => {
         )}
 
         {hideNav && (
-          <Link href="/" className="text-sm text-ash hover:text-red transition-colors font-semibold">
+          <Link
+            href="/"
+            className="text-sm text-ash hover:text-red transition-colors font-semibold">
             ← Home
           </Link>
         )}
@@ -103,7 +105,8 @@ const Header = ({ hideNav }: HeaderProps) => {
 };
 
 function isActive(item: NavItem, pathname: string): boolean {
-  if (item.href === '/projects') return pathname === '/projects' || pathname.startsWith('/projects/');
+  if (item.href === '/projects')
+    return pathname === '/projects' || pathname.startsWith('/projects/');
   if (item.href === '/blog') return pathname === '/blog' || pathname.startsWith('/blog/');
   return false;
 }
@@ -121,7 +124,7 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   return (
     <Link
       href={item.href}
-      onClick={item.anchor ? (e) => handleAnchorClick(e, item.anchor!) : undefined}
+      onClick={item.anchor ? e => handleAnchorClick(e, item.anchor!) : undefined}
       className={`text-sm font-semibold transition-colors hover:text-red relative group ${
         active ? 'text-red' : 'text-ash'
       }`}>

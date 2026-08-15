@@ -29,32 +29,32 @@ export function getAllProjects(): Project[] {
 
 export function getProjectBySlug(slug: string): Project | null {
   const projects = getProjectsData();
-  return projects.find((p) => p.slug === slug) || null;
+  return projects.find(p => p.slug === slug) || null;
 }
 
 export function getFeaturedProjects(count: number = 3): Project[] {
   return getProjectsData()
-    .filter((p) => p.featured)
+    .filter(p => p.featured)
     .slice(0, count);
 }
 
 export function getProjectsBySkill(skill: string): Project[] {
-  return getProjectsData().filter((project) =>
-    project.skills.some((s) => s.toLowerCase() === skill.toLowerCase())
+  return getProjectsData().filter(project =>
+    project.skills.some(s => s.toLowerCase() === skill.toLowerCase())
   );
 }
 
 export function getProjectsByCategory(
   category: 'web-app' | 'landing' | 'dashboard' | 'mobile' | 'other'
 ): Project[] {
-  return getProjectsData().filter((p) => p.category === category);
+  return getProjectsData().filter(p => p.category === category);
 }
 
 export function getAllProjectSkills(): string[] {
   const projects = getProjectsData();
   const skills = new Set<string>();
-  projects.forEach((project) => {
-    project.skills.forEach((skill) => skills.add(skill));
+  projects.forEach(project => {
+    project.skills.forEach(skill => skills.add(skill));
   });
   return Array.from(skills).sort();
 }
@@ -62,9 +62,9 @@ export function getAllProjectSkills(): string[] {
 export function searchProjects(query: string): Project[] {
   const lowerQuery = query.toLowerCase();
   return getProjectsData().filter(
-    (project) =>
+    project =>
       project.title.toLowerCase().includes(lowerQuery) ||
       project.description.toLowerCase().includes(lowerQuery) ||
-      project.skills.some((skill) => skill.toLowerCase().includes(lowerQuery))
+      project.skills.some(skill => skill.toLowerCase().includes(lowerQuery))
   );
 }

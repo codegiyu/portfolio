@@ -23,8 +23,8 @@ export default function ProjectsPage() {
             </h1>
             <div className="w-12 h-[3px] bg-red mb-6" />
             <p className="text-ash text-lg max-w-2xl leading-relaxed">
-              A selection of products I&apos;ve built and shipped — technical execution meets product
-              thinking.
+              A selection of products I&apos;ve built and shipped — technical execution meets
+              product thinking.
             </p>
           </ScrollReveal>
         </div>

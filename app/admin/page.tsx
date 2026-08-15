@@ -15,7 +15,10 @@ export default function AdminLoginPage() {
     try {
       const res = await fetch('/api/auth/send-link', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Origin: window.location.origin,
+        },
         body: JSON.stringify({ email }),
       });
 
@@ -23,7 +26,9 @@ export default function AdminLoginPage() {
         throw new Error('Failed to send magic link');
       }
 
-      setMessage('Check your email for a sign-in link (valid for 24 hours)');
+      setMessage(
+        'If the address is authorized, check your email for a sign-in link valid for 15 minutes.'
+      );
       setEmail('');
     } catch (error) {
       setMessage(`Error: ${error instanceof Error ? error.message : 'Something went wrong'}`);
@@ -56,7 +61,7 @@ export default function AdminLoginPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
                 className="w-full px-4 py-3 bg-dark border border-gray-700 rounded-lg text-light placeholder-ash focus:outline-none focus:border-red transition-colors"
@@ -66,8 +71,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-4 py-3 bg-red text-light font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
-            >
+              className="w-full px-4 py-3 bg-red text-light font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50">
               {loading ? 'Sending link...' : 'Send Magic Link'}
             </button>
           </form>
@@ -75,17 +79,16 @@ export default function AdminLoginPage() {
           {message && (
             <div
               className={`mt-4 p-4 rounded-lg text-sm ${
-                message.includes('Check your email')
+                message.startsWith('If the address')
                   ? 'bg-green-900/20 border border-green-700 text-green-300'
                   : 'bg-red/20 border border-red text-red'
-              }`}
-            >
+              }`}>
               {message}
             </div>
           )}
 
           <p className="text-center text-ash text-sm mt-6">
-            You'll receive a secure link via email to sign in without a password.
+            You&apos;ll receive a one-time link via email to sign in without a password.
           </p>
         </div>
       </main>

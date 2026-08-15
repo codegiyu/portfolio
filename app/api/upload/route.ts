@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isValidMagicLinkToken } from '@/lib/firebase';
+import { requireAdmin } from '@/lib/server/auth/guard';
 import { uploadToR2 } from '@/lib/r2';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
@@ -16,15 +16,9 @@ const ALLOWED_TYPES = new Set([
 const MAX_SIZE_MB = 10;
 const MAX_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
-function requireAdmin(request: NextRequest): boolean {
-  const token = request.cookies.get('admin_token')?.value;
-  return !!token && isValidMagicLinkToken(token, process.env.MAGIC_LINK_SECRET || 'dev-secret');
-}
-
 export async function POST(request: NextRequest) {
-  if (!requireAdmin(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const denied = await requireAdmin(request, { requireSameOrigin: true });
+  if (denied) return denied;
 
   try {
     const formData = await request.formData();
@@ -43,10 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (file.size > MAX_BYTES) {
-      return NextResponse.json(
-        { error: `File exceeds ${MAX_SIZE_MB}MB limit` },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: `File exceeds ${MAX_SIZE_MB}MB limit` }, { status: 400 });
     }
 
     const ext = path.extname(file.name) || `.${file.type.split('/')[1]}`;

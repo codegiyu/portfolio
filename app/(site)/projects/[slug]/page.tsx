@@ -10,7 +10,7 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const projects = getAllProjects();
-  return projects.map((p) => ({ slug: p.slug }));
+  return projects.map(p => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -115,7 +115,7 @@ export default async function ProjectPage({ params }: PageProps) {
             Tech Stack
           </p>
           <div className="flex flex-wrap gap-2">
-            {project.skills.map((skill) => (
+            {project.skills.map(skill => (
               <span
                 key={skill}
                 className="text-xs font-semibold uppercase tracking-wider text-ash border border-white/10 px-3 py-1.5 font-montserrat">
@@ -129,21 +129,14 @@ export default async function ProjectPage({ params }: PageProps) {
       {/* Case study body */}
       <div className="container max-w-4xl py-12 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-
           {/* Main content */}
           <div className="lg:col-span-2 space-y-12">
             {project.longDescription && (
               <CaseSection label="Overview" content={project.longDescription} />
             )}
-            {project.challenge && (
-              <CaseSection label="The Challenge" content={project.challenge} />
-            )}
-            {project.solution && (
-              <CaseSection label="My Approach" content={project.solution} />
-            )}
-            {project.results && (
-              <CaseSection label="Outcomes" content={project.results} />
-            )}
+            {project.challenge && <CaseSection label="The Challenge" content={project.challenge} />}
+            {project.solution && <CaseSection label="My Approach" content={project.solution} />}
+            {project.results && <CaseSection label="Outcomes" content={project.results} />}
           </div>
 
           {/* Sidebar */}
@@ -163,7 +156,7 @@ export default async function ProjectPage({ params }: PageProps) {
                 Stack
               </p>
               <div className="space-y-1.5">
-                {project.skills.map((skill) => (
+                {project.skills.map(skill => (
                   <p key={skill} className="text-sm text-ash flex items-center gap-2">
                     <span className="w-1 h-1 bg-red rounded-full flex-shrink-0" />
                     {skill}

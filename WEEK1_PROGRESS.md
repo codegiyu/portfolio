@@ -1,25 +1,31 @@
 # Week 1: Setup & Infrastructure - COMPLETE ✅
 
+> Historical project notes. The current production baseline is documented in
+> `docs/security-audit.md` and the Phase 1 release gates in `package.json`.
+
 ## Overview
+
 All Week 1 infrastructure tasks have been completed. The foundation for the portfolio redesign is in place.
 
 ## Completed Tasks
 
 ### Upgrades
-- ✅ Next.js 14.2.23 (latest stable, latest Next.js for 2026 compatibility)
-- ✅ React 18.3.1 maintained
+
+- ✅ Next.js 16.3.1 with React 19.2.7
 
 ### Dependencies Installed
+
 - ✅ gray-matter (MDX frontmatter parsing)
 - ✅ gsap (scroll animations)
 - ✅ react-syntax-highlighter (code block syntax coloring)
 - ✅ fuse.js (client-side blog search)
-- ✅ @mdx-js/react (MDX component rendering)
 - ✅ date-fns (date formatting utilities)
 - ✅ uuid (unique ID generation)
 
 ### Folder Structure
+
 Created new directories:
+
 - ✅ `content/blog/` - Blog post MDX files
 - ✅ `app/projects/` - Projects page
 - ✅ `app/admin/` - Admin panel
@@ -29,13 +35,16 @@ Created new directories:
 - ✅ `components/admin/` - Admin components (structure ready)
 
 ### Core Types
+
 Extended `lib/types/general.ts` with:
+
 - ✅ `BlogPost` interface (slug, title, excerpt, content, date, tags, coverImage, author, readingTime, published)
 - ✅ `BlogFrontmatter` interface (frontmatter fields for MDX parsing)
 - ✅ `Project` interface (extended from hardcoded data with case study fields)
 - ✅ `AdminUser` interface (email, token, expiresAt)
 
 ### Utility Libraries
+
 - ✅ `lib/blog.ts` - Blog utilities
   - `getBlogFiles()` - List all blog MDX files
   - `getBlogPostBySlug(slug)` - Get single post
@@ -55,12 +64,14 @@ Extended `lib/types/general.ts` with:
   - `searchProjects(query)` - Full-text search
 
 ### Design
+
 - ✅ Grid background added to `app/globals.css`
   - 120px grid pattern
   - Gray lines at 5% opacity
   - Applied to body element
 
 ### Content
+
 - ✅ `content/projects.json` - Migrated 5 projects with extended schema
   - id, slug, title, description, longDescription
   - image, gallery, skills, challenge, solution, results
@@ -75,14 +86,16 @@ Extended `lib/types/general.ts` with:
   - Technical deep-dive with examples
 
 ### API Routes
+
 - ✅ `/api/auth/send-link` - POST endpoint for magic link email
-- ✅ `/api/auth/verify` - POST endpoint to verify magic link token and set secure cookie
+- ✅ `/api/auth/verify` - POST endpoint for atomic one-time verification and revocable session cookie
 - ✅ `/api/blog` - GET endpoint to list/search blog posts
 - ✅ `/api/blog/[slug]` - GET endpoint for single blog post
 - ✅ `/api/projects` - GET endpoint to list/filter projects
 - ✅ `/api/projects/[slug]` - GET endpoint for single project
 
 ### Pages
+
 - ✅ `app/(home)/layout.tsx` - Home route group layout
 - ✅ `app/projects/page.tsx` - Projects grid showcase
   - Displays all projects
@@ -109,15 +122,16 @@ Extended `lib/types/general.ts` with:
   - Table structure ready for Week 4 CRUD implementation
 
 ### Firebase Setup
-- ✅ `lib/firebase.ts` - Firebase configuration
-  - Config object with environment variables
-  - `isValidMagicLinkToken()` - Token validation
-  - `generateMagicLinkToken()` - Token generation
+
+- ✅ Firebase Admin is initialized server-side through `lib/firestore.ts`
+- ✅ Phase 1 authentication uses hashed, one-time Firestore magic links and revocable sessions
 
 ## Status
+
 **Week 1 is 100% complete.** All infrastructure and setup tasks are finished. Ready to proceed with Week 2: Blog Foundation.
 
 ## Next Steps (Week 2)
+
 - [ ] Implement MDX rendering with syntax highlighting
 - [ ] Create `/blog/[slug]` detail page with TOC sidebar
 - [ ] Build blog search component

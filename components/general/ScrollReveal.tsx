@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, ElementType, ComponentPropsWithRef } from 'react';
+import { useRef, useEffect, ElementType } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -63,12 +63,7 @@ interface StaggerRevealProps {
   y?: number;
 }
 
-export function StaggerReveal({
-  children,
-  className,
-  stagger = 0.07,
-  y = 18,
-}: StaggerRevealProps) {
+export function StaggerReveal({ children, className, stagger = 0.07, y = 18 }: StaggerRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
