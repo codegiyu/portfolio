@@ -18,6 +18,9 @@
     "release:check": "npm run format:check && npm run lint && npm run fonts:check && npm run typecheck && npm test && npm run build:check && npm run audit:prod",
     "generate:icons": "npx @svgr/cli --out-dir components/icons --ignore-existing --typescript --replace-attr-values #fff=currentColor,#000=currentColor --jsx-runtime automatic --icon -- public/icons",
     "seed": "tsx scripts/seed.ts",
+    "content:backup": "tsx scripts/content/backup.ts",
+    "content:migrate": "tsx scripts/content/migrate.ts",
+    "content:verify": "tsx scripts/content/verify.ts",
     "firebase:deploy:indexes": "firebase deploy --only firestore:indexes"
   },
   "dependencies": {

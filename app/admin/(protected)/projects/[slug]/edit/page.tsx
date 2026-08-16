@@ -27,15 +27,20 @@ export default function EditProjectPage() {
     solution: '',
     results: '',
     featured: false,
+    published: false,
   });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [version, setVersion] = useState<number | undefined>();
 
   useEffect(() => {
-    fetch(`/api/projects/${slug}`)
-      .then(r => r.json())
+    fetch(`/api/projects/${slug}?scope=admin`)
+      .then(async r => {
+        if (!r.ok) throw new Error('Project not found');
+        return r.json();
+      })
       .then((project: Project) => {
         setForm({
           title: project.title,
@@ -50,7 +55,9 @@ export default function EditProjectPage() {
           solution: project.solution || '',
           results: project.results || '',
           featured: project.featured ?? false,
+          published: project.published ?? project.status === 'published',
         });
+        setVersion(project.version);
         setLoading(false);
       })
       .catch(() => {
@@ -77,6 +84,7 @@ export default function EditProjectPage() {
             .split(',')
             .map(s => s.trim())
             .filter(Boolean),
+          expectedVersion: version,
         }),
       });
       const data = await res.json();
@@ -230,6 +238,13 @@ export default function EditProjectPage() {
               <Toggle checked={form.featured} onChange={v => set('featured', v)} />
               <span className="text-sm text-ash font-semibold">
                 {form.featured ? 'Featured on homepage' : 'Not featured'}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <Toggle checked={form.published} onChange={v => set('published', v)} />
+              <span className="text-sm text-ash font-semibold">
+                {form.published ? 'Published' : 'Draft'}
               </span>
             </div>
 

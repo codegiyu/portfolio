@@ -1,36 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth/guard';
-import { getAllSettings } from '@/lib/settings';
+import { LOCAL_FALLBACKS } from '@/lib/settings';
+import {
+  contentErrorResponse,
+  contentWriteFreezeResponse,
+  getPublicSettings,
+  parseJsonBody,
+  updateSettings,
+} from '@/lib/server/content';
+import type { SettingsKey } from '@/lib/types/general';
+
+const validKeys = new Set(Object.keys(LOCAL_FALLBACKS));
 
 export async function GET() {
   try {
-    const settings = await getAllSettings();
-    return NextResponse.json(settings, { status: 200 });
+    return NextResponse.json(await getPublicSettings(), { status: 200 });
   } catch (error) {
-    console.error('Error fetching settings:', error);
-    return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+    return contentErrorResponse(error, 'Failed to fetch settings');
   }
 }
 
 export async function PUT(request: NextRequest) {
   const denied = await requireAdmin(request, { requireSameOrigin: true });
   if (denied) return denied;
-
-  // Bulk update — body is a partial SiteSettings object
+  const frozen = contentWriteFreezeResponse();
+  if (frozen) return frozen;
   try {
-    const { getDb } = await import('@/lib/firestore');
-    const updates = await request.json();
-    const db = getDb();
-
-    const batch = db.batch();
-    for (const [key, value] of Object.entries(updates)) {
-      batch.set(db.collection('settings').doc(key), value as object, { merge: true });
+    const updates = await parseJsonBody(request);
+    const entries = Object.entries(updates);
+    if (entries.some(([key]) => !validKeys.has(key))) {
+      return NextResponse.json({ error: 'Unknown settings key' }, { status: 400 });
     }
-    await batch.commit();
-
+    await Promise.all(entries.map(([key, value]) => updateSettings(key as SettingsKey, value)));
     return NextResponse.json({ message: 'Settings updated' }, { status: 200 });
   } catch (error) {
-    console.error('Error updating settings:', error);
-    return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
+    return contentErrorResponse(error, 'Failed to update settings');
   }
 }

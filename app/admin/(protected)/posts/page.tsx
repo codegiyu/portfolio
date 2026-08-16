@@ -13,7 +13,7 @@ export default function AdminPostsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   async function fetchPosts() {
-    const res = await fetch('/api/blog');
+    const res = await fetch('/api/blog?scope=admin');
     if (res.ok) {
       const data = await res.json();
       setPosts(data);

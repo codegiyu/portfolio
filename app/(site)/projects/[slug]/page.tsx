@@ -1,27 +1,19 @@
 import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeftIcon, ExternalLinkIcon, GithubIcon } from 'lucide-react';
-import { getProjectBySlug, getAllProjects } from '@/lib/projects';
+import { getPublishedProjectBySlug } from '@/lib/server/content';
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const projects = getAllProjects();
-  return projects.map(p => ({ slug: p.slug }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
-  if (!project) return {};
-
-  return {
-    title: `${project.title} | Codegiyu`,
-    description: project.description,
-  };
+  const project = await getPublishedProjectBySlug(slug);
+  return project ? { title: `${project.title} | Codegiyu`, description: project.description } : {};
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -34,13 +26,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export default async function ProjectPage({ params }: PageProps) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
-
+  const project = await getPublishedProjectBySlug(slug);
   if (!project) notFound();
-
   return (
     <div className="w-full">
-      {/* Back link */}
       <div className="container py-6">
         <Link
           href="/projects"
@@ -49,8 +38,6 @@ export default async function ProjectPage({ params }: PageProps) {
           Back to Projects
         </Link>
       </div>
-
-      {/* Header */}
       <div className="border-b border-white/[0.06] pb-12">
         <div className="container max-w-4xl">
           <div className="flex flex-wrap items-center gap-3 mb-5">
@@ -65,14 +52,10 @@ export default async function ProjectPage({ params }: PageProps) {
               </span>
             )}
           </div>
-
           <h1 className="font-montserrat font-black text-3xl md:text-4xl lg:text-5xl text-light leading-[1.2] mb-5">
             {project.title}
           </h1>
-
           <p className="text-ash text-lg leading-relaxed mb-8 max-w-2xl">{project.description}</p>
-
-          {/* Links */}
           <div className="flex flex-wrap items-center gap-4">
             {project.liveLink && (
               <a
@@ -95,8 +78,6 @@ export default async function ProjectPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-
-      {/* Preview image */}
       {project.image && (
         <div className="border-b border-white/[0.06]">
           <div className="container max-w-5xl py-10">
@@ -107,8 +88,6 @@ export default async function ProjectPage({ params }: PageProps) {
           </div>
         </div>
       )}
-
-      {/* Tech stack */}
       <div className="border-b border-white/[0.06]">
         <div className="container max-w-4xl py-10">
           <p className="text-[10px] font-black uppercase tracking-widest text-ash/40 mb-4">
@@ -125,11 +104,8 @@ export default async function ProjectPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-
-      {/* Case study body */}
       <div className="container max-w-4xl py-12 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Main content */}
           <div className="lg:col-span-2 space-y-12">
             {project.longDescription && (
               <CaseSection label="Overview" content={project.longDescription} />
@@ -138,8 +114,6 @@ export default async function ProjectPage({ params }: PageProps) {
             {project.solution && <CaseSection label="My Approach" content={project.solution} />}
             {project.results && <CaseSection label="Outcomes" content={project.results} />}
           </div>
-
-          {/* Sidebar */}
           <aside className="space-y-8">
             {project.category && (
               <div>
@@ -164,39 +138,8 @@ export default async function ProjectPage({ params }: PageProps) {
                 ))}
               </div>
             </div>
-            {(project.liveLink || project.sourceLink) && (
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-ash/40 mb-3">
-                  Links
-                </p>
-                <div className="space-y-2">
-                  {project.liveLink && (
-                    <a
-                      href={project.liveLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-ash hover:text-red transition-colors">
-                      <ExternalLinkIcon className="size-3.5 flex-shrink-0" />
-                      Live site
-                    </a>
-                  )}
-                  {project.sourceLink && (
-                    <a
-                      href={project.sourceLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-ash hover:text-red transition-colors">
-                      <GithubIcon className="size-3.5 flex-shrink-0" />
-                      Source code
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
           </aside>
         </div>
-
-        {/* Back to all projects */}
         <div className="mt-16 pt-10 border-t border-white/[0.06]">
           <Link
             href="/projects"

@@ -25,6 +25,7 @@ export default function NewProjectPage() {
     solution: '',
     results: '',
     featured: false,
+    published: false,
   });
 
   const [saving, setSaving] = useState(false);
@@ -221,6 +222,13 @@ export default function NewProjectPage() {
               <Toggle checked={form.featured} onChange={v => set('featured', v)} />
               <span className="text-sm text-ash font-semibold">
                 {form.featured ? 'Featured on homepage' : 'Not featured'}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <Toggle checked={form.published} onChange={v => set('published', v)} />
+              <span className="text-sm text-ash font-semibold">
+                {form.published ? 'Published' : 'Draft'}
               </span>
             </div>
 

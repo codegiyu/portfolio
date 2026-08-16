@@ -23,16 +23,27 @@ export default function ContactSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [savingContact, setSavingContact] = useState(false);
   const [savingSocial, setSavingSocial] = useState(false);
+  const [versions, setVersions] = useState<{
+    contact?: number;
+    social?: number;
+  }>({});
   const [msg, setMsg] = useState<Record<string, { type: 'ok' | 'err'; text: string }>>({});
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/settings/contact').then(r => r.json()),
-      fetch('/api/settings/social').then(r => r.json()),
+      fetch('/api/settings/contact?scope=admin').then(async r => {
+        if (!r.ok) throw new Error('Failed to load contact settings');
+        return r.json();
+      }),
+      fetch('/api/settings/social?scope=admin').then(async r => {
+        if (!r.ok) throw new Error('Failed to load social settings');
+        return r.json();
+      }),
     ])
       .then(([contact, social]) => {
-        setContactItems((contact as ContactSettings).items ?? []);
-        setSocialLinks((social as SocialSettings).links ?? []);
+        setContactItems((contact.value as ContactSettings).items ?? []);
+        setSocialLinks((social.value as SocialSettings).links ?? []);
+        setVersions({ contact: contact.version, social: social.version });
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -61,9 +72,11 @@ export default function ContactSettingsPage() {
       const res = await fetch('/api/settings/contact', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: contactItems }),
+        body: JSON.stringify({ items: contactItems, expectedVersion: versions.contact }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+      setVersions(prev => ({ ...prev, contact: data.version }));
       setMsg(m => ({ ...m, contact: { type: 'ok', text: 'Contact info saved.' } }));
     } catch {
       setMsg(m => ({ ...m, contact: { type: 'err', text: 'Save failed.' } }));
@@ -93,9 +106,11 @@ export default function ContactSettingsPage() {
       const res = await fetch('/api/settings/social', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ links: socialLinks }),
+        body: JSON.stringify({ links: socialLinks, expectedVersion: versions.social }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+      setVersions(prev => ({ ...prev, social: data.version }));
       setMsg(m => ({ ...m, social: { type: 'ok', text: 'Social links saved.' } }));
     } catch {
       setMsg(m => ({ ...m, social: { type: 'err', text: 'Save failed.' } }));

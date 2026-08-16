@@ -40,6 +40,7 @@ export type ValidObjectTypeKey<T extends object, K> = {
 
 // Blog types
 export interface BlogPost {
+  id?: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -50,6 +51,12 @@ export interface BlogPost {
   author?: string;
   readingTime?: number;
   published: boolean;
+  status?: 'draft' | 'published';
+  publishAt?: string | null;
+  publishedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  version?: number;
 }
 
 export interface BlogFrontmatter {
@@ -79,6 +86,14 @@ export interface Project {
   sourceLink?: string;
   featured: boolean;
   category?: 'web-app' | 'landing' | 'dashboard' | 'mobile' | 'other';
+  status?: 'draft' | 'published';
+  published?: boolean;
+  publishAt?: string | null;
+  publishedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  sortOrder?: number;
+  version?: number;
 }
 
 // Settings types
@@ -122,6 +137,8 @@ export interface SiteSettings {
   skills: SkillsSettings;
   specialties: { cards: SpecialtyCard[] };
 }
+
+export type SettingsKey = keyof SiteSettings;
 
 // Admin types
 export interface AdminUser {

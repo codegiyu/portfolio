@@ -20,13 +20,18 @@ export default function AboutSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [version, setVersion] = useState<number | undefined>();
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
-    fetch('/api/settings/about')
-      .then(r => r.json())
+    fetch('/api/settings/about?scope=admin')
+      .then(async r => {
+        if (!r.ok) throw new Error('Failed to load settings');
+        return r.json();
+      })
       .then(data => {
-        setForm(data);
+        setForm(data.value);
+        setVersion(data.version);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -64,9 +69,11 @@ export default function AboutSettingsPage() {
       const res = await fetch('/api/settings/about', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, expectedVersion: version }),
       });
       if (!res.ok) throw new Error('Save failed');
+      const data = await res.json();
+      setVersion(data.version);
       setMessage({ type: 'ok', text: 'About settings saved.' });
     } catch {
       setMessage({ type: 'err', text: 'Failed to save. Try again.' });

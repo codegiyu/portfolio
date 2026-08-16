@@ -25,10 +25,11 @@ export default function EditPostPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [version, setVersion] = useState<number | undefined>();
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/blog/${slug}`);
+      const res = await fetch(`/api/blog/${slug}?scope=admin`);
       if (!res.ok) {
         setError('Post not found');
         setLoading(false);
@@ -45,6 +46,7 @@ export default function EditPostPage() {
         published: post.published,
         content: post.content,
       });
+      setVersion(post.version);
       setLoading(false);
     }
     load();
@@ -65,6 +67,7 @@ export default function EditPostPage() {
             .split(',')
             .map(t => t.trim())
             .filter(Boolean),
+          expectedVersion: version,
         }),
       });
 

@@ -31,16 +31,27 @@ export default function SkillsSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [savingSkills, setSavingSkills] = useState(false);
   const [savingSpecialties, setSavingSpecialties] = useState(false);
+  const [versions, setVersions] = useState<{
+    skills?: number;
+    specialties?: number;
+  }>({});
   const [msg, setMsg] = useState<Record<string, { type: 'ok' | 'err'; text: string }>>({});
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/settings/skills').then(r => r.json()),
-      fetch('/api/settings/specialties').then(r => r.json()),
+      fetch('/api/settings/skills?scope=admin').then(async r => {
+        if (!r.ok) throw new Error('Failed to load skills settings');
+        return r.json();
+      }),
+      fetch('/api/settings/specialties?scope=admin').then(async r => {
+        if (!r.ok) throw new Error('Failed to load specialty settings');
+        return r.json();
+      }),
     ])
       .then(([s, sp]) => {
-        setSkills(s as SkillsSettings);
-        setSpecialties((sp as { cards: SpecialtyCard[] }).cards ?? []);
+        setSkills(s.value as SkillsSettings);
+        setSpecialties((sp.value as { cards: SpecialtyCard[] }).cards ?? []);
+        setVersions({ skills: s.version, specialties: sp.version });
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -75,9 +86,11 @@ export default function SkillsSettingsPage() {
       const res = await fetch('/api/settings/skills', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(skills),
+        body: JSON.stringify({ ...skills, expectedVersion: versions.skills }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+      setVersions(prev => ({ ...prev, skills: data.version }));
       setMsg(m => ({ ...m, skills: { type: 'ok', text: 'Skills saved.' } }));
     } catch {
       setMsg(m => ({ ...m, skills: { type: 'err', text: 'Save failed.' } }));
@@ -107,9 +120,11 @@ export default function SkillsSettingsPage() {
       const res = await fetch('/api/settings/specialties', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cards: specialties }),
+        body: JSON.stringify({ cards: specialties, expectedVersion: versions.specialties }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+      setVersions(prev => ({ ...prev, specialties: data.version }));
       setMsg(m => ({ ...m, specialties: { type: 'ok', text: 'Specialties saved.' } }));
     } catch {
       setMsg(m => ({ ...m, specialties: { type: 'err', text: 'Save failed.' } }));

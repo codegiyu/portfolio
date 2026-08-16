@@ -1,59 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import { getBlogPostBySlug } from '@/lib/blog';
 import { requireAdmin } from '@/lib/server/auth/guard';
+import {
+  contentErrorResponse,
+  contentWriteFreezeResponse,
+  deletePost,
+  getAdminPostBySlug,
+  getPublishedPostBySlug,
+  invalidatePost,
+  parseJsonBody,
+  parseExpectedVersion,
+  updatePost,
+} from '@/lib/server/content';
 
-const BLOG_DIRECTORY = path.join(process.cwd(), 'content', 'blog');
+function postPayload(body: Record<string, unknown>) {
+  const { published, content, ...rest } = body;
+  return {
+    ...rest,
+    bodyMarkdown: rest.bodyMarkdown ?? content,
+    status:
+      rest.status ??
+      (typeof published === 'boolean' ? (published ? 'published' : 'draft') : undefined),
+    publishedAt: rest.publishedAt ?? rest.date,
+  };
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params;
-    const post = getBlogPostBySlug(slug);
-    if (!post) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    if (request.nextUrl.searchParams.get('scope') === 'admin') {
+      const denied = await requireAdmin(request);
+      if (denied) return denied;
+      const post = await getAdminPostBySlug(slug);
+      return post
+        ? NextResponse.json(post, { status: 200, headers: { 'Cache-Control': 'no-store' } })
+        : NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
-    return NextResponse.json(post, { status: 200 });
+    const post = await getPublishedPostBySlug(slug);
+    return post
+      ? NextResponse.json(post, { status: 200 })
+      : NextResponse.json({ error: 'Post not found' }, { status: 404 });
   } catch (error) {
-    console.error('Error fetching blog post:', error);
-    return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 });
+    return contentErrorResponse(error, 'Failed to fetch post');
   }
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const denied = await requireAdmin(request, { requireSameOrigin: true });
   if (denied) return denied;
-
+  const frozen = contentWriteFreezeResponse();
+  if (frozen) return frozen;
   try {
     const { slug } = await params;
-    const filePath = path.join(BLOG_DIRECTORY, `${slug}.mdx`);
-
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
-    }
-
-    const { title, excerpt, date, tags, coverImage, author, published, content } =
-      await request.json();
-
-    const frontmatter = [
-      '---',
-      `title: "${title}"`,
-      `date: "${date}"`,
-      `tags: [${(tags || []).map((t: string) => `"${t}"`).join(', ')}]`,
-      `excerpt: "${excerpt || ''}"`,
-      `coverImage: "${coverImage || ''}"`,
-      `author: "${author || 'Edward-Precious Omegbu'}"`,
-      `published: ${published !== false}`,
-      '---',
-      '',
-    ].join('\n');
-
-    fs.writeFileSync(filePath, frontmatter + content, 'utf-8');
-
-    return NextResponse.json({ message: 'Post updated', slug }, { status: 200 });
+    const body = await parseJsonBody(request);
+    if (typeof body.slug === 'string' && body.slug !== slug)
+      return NextResponse.json({ error: 'Slugs are immutable' }, { status: 400 });
+    const post = await updatePost(slug, postPayload(body), parseExpectedVersion(body));
+    invalidatePost(slug);
+    return NextResponse.json({ post }, { status: 200 });
   } catch (error) {
-    console.error('Error updating blog post:', error);
-    return NextResponse.json({ error: 'Failed to update post' }, { status: 500 });
+    return contentErrorResponse(error, 'Failed to update post');
   }
 }
 
@@ -63,20 +68,14 @@ export async function DELETE(
 ) {
   const denied = await requireAdmin(request, { requireSameOrigin: true });
   if (denied) return denied;
-
+  const frozen = contentWriteFreezeResponse();
+  if (frozen) return frozen;
   try {
     const { slug } = await params;
-    const filePath = path.join(BLOG_DIRECTORY, `${slug}.mdx`);
-
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
-    }
-
-    fs.unlinkSync(filePath);
-
+    await deletePost(slug);
+    invalidatePost(slug);
     return NextResponse.json({ message: 'Post deleted' }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting blog post:', error);
-    return NextResponse.json({ error: 'Failed to delete post' }, { status: 500 });
+    return contentErrorResponse(error, 'Failed to delete post');
   }
 }

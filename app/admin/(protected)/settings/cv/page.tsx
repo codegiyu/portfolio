@@ -8,16 +8,23 @@ import type { AboutSettings } from '@/lib/types/general';
 
 export default function CvSettingsPage() {
   const [cvUrl, setCvUrl] = useState('');
+  const [about, setAbout] = useState<AboutSettings | null>(null);
+  const [version, setVersion] = useState<number | undefined>();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
   useEffect(() => {
-    fetch('/api/settings/about')
-      .then(r => r.json())
-      .then((data: AboutSettings) => {
-        setCvUrl(data.cvUrl || '');
+    fetch('/api/settings/about?scope=admin')
+      .then(async r => {
+        if (!r.ok) throw new Error('Failed to load settings');
+        return r.json();
+      })
+      .then(data => {
+        setAbout(data.value);
+        setVersion(data.version);
+        setCvUrl(data.value.cvUrl || '');
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -49,14 +56,15 @@ export default function CvSettingsPage() {
     setSaving(true);
     setMessage(null);
     try {
-      // CV URL lives inside the "about" settings document
-      const current = (await fetch('/api/settings/about').then(r => r.json())) as AboutSettings;
       const res = await fetch('/api/settings/about', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...current, cvUrl }),
+        body: JSON.stringify({ ...(about as AboutSettings), cvUrl, expectedVersion: version }),
       });
       if (!res.ok) throw new Error();
+      const data = await res.json();
+      setAbout(data.value);
+      setVersion(data.version);
       setMessage({ type: 'ok', text: 'CV URL saved.' });
     } catch {
       setMessage({ type: 'err', text: 'Failed to save. Try again.' });

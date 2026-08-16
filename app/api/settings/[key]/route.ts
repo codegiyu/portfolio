@@ -1,44 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth/guard';
-import { getSetting, LOCAL_FALLBACKS, type SettingsKey } from '@/lib/settings';
+import { LOCAL_FALLBACKS } from '@/lib/settings';
+import {
+  contentErrorResponse,
+  contentWriteFreezeResponse,
+  getAdminSettings,
+  getPublicSettings,
+  parseJsonBody,
+  parseExpectedVersion,
+  updateSettings,
+} from '@/lib/server/content';
+import type { SettingsKey } from '@/lib/types/general';
 
-const VALID_KEYS = new Set<string>(Object.keys(LOCAL_FALLBACKS));
+const validKeys = new Set(Object.keys(LOCAL_FALLBACKS));
 
-export async function GET(_request: NextRequest, { params }: { params: Promise<{ key: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
-
-  if (!VALID_KEYS.has(key)) {
+  if (!validKeys.has(key))
     return NextResponse.json({ error: 'Unknown settings key' }, { status: 404 });
-  }
-
   try {
-    const data = await getSetting(key as SettingsKey);
-    return NextResponse.json(data, { status: 200 });
+    if (request.nextUrl.searchParams.get('scope') === 'admin') {
+      const denied = await requireAdmin(request);
+      if (denied) return denied;
+      return NextResponse.json(await getAdminSettings(key as SettingsKey), {
+        status: 200,
+        headers: { 'Cache-Control': 'no-store' },
+      });
+    }
+    const settings = await getPublicSettings();
+    return NextResponse.json(settings[key as SettingsKey], { status: 200 });
   } catch (error) {
-    console.error(`Error fetching setting "${key}":`, error);
-    return NextResponse.json({ error: 'Failed to fetch setting' }, { status: 500 });
+    return contentErrorResponse(error, `Failed to fetch setting "${key}"`);
   }
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ key: string }> }) {
   const denied = await requireAdmin(request, { requireSameOrigin: true });
   if (denied) return denied;
-
+  const frozen = contentWriteFreezeResponse();
+  if (frozen) return frozen;
   const { key } = await params;
-
-  if (!VALID_KEYS.has(key)) {
+  if (!validKeys.has(key))
     return NextResponse.json({ error: 'Unknown settings key' }, { status: 404 });
-  }
-
   try {
-    const body = await request.json();
-    const { getDb } = await import('@/lib/firestore');
-    const db = getDb();
-    await db.collection('settings').doc(key).set(body, { merge: true });
-
-    return NextResponse.json({ message: `Setting "${key}" updated` }, { status: 200 });
+    const body = await parseJsonBody(request);
+    const value = { ...body };
+    delete value.expectedVersion;
+    const result = await updateSettings(key as SettingsKey, value, parseExpectedVersion(body));
+    return NextResponse.json(result, { status: 200 });
   } catch (error) {
-    console.error(`Error updating setting "${key}":`, error);
-    return NextResponse.json({ error: 'Failed to update setting' }, { status: 500 });
+    return contentErrorResponse(error, `Failed to update setting "${key}"`);
   }
 }

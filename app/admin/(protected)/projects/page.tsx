@@ -20,13 +20,19 @@ export default function AdminProjectsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/projects')
-      .then(r => r.json())
+    fetch('/api/projects?scope=admin')
+      .then(async r => {
+        if (!r.ok) throw new Error('Failed to load projects');
+        return r.json();
+      })
       .then(data => {
-        setProjects(data);
+        setProjects(Array.isArray(data) ? data : []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setProjects([]);
+        setLoading(false);
+      });
   }, []);
 
   async function handleDelete(slug: string, title: string) {

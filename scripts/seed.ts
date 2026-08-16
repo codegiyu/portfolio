@@ -7,7 +7,7 @@
 
 import 'dotenv/config';
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 
 function getDb() {
   if (!getApps().length) {
@@ -221,9 +221,26 @@ const SETTINGS = {
 async function seedProjects(db: FirebaseFirestore.Firestore) {
   console.log('Seeding projects...');
   const batch = db.batch();
-  for (const project of PROJECTS) {
+  const now = Timestamp.now();
+  for (const [index, project] of PROJECTS.entries()) {
     const ref = db.collection('projects').doc(project.slug);
-    batch.set(ref, project, { merge: true });
+    batch.set(
+      ref,
+      {
+        ...project,
+        id: ref.id,
+        status: 'published',
+        publishAt: null,
+        publishedAt: now,
+        createdAt: now,
+        updatedAt: now,
+        sortOrder: index,
+        schemaVersion: 1,
+        sourceHash: null,
+        version: 1,
+      },
+      { merge: true }
+    );
   }
   await batch.commit();
   console.log(`  ✓ ${PROJECTS.length} projects seeded`);
@@ -232,17 +249,34 @@ async function seedProjects(db: FirebaseFirestore.Firestore) {
 async function seedSettings(db: FirebaseFirestore.Firestore) {
   console.log('Seeding settings...');
   const batch = db.batch();
+  const now = Timestamp.now();
 
   // about, skills, specialties — stored as flat document fields
-  batch.set(db.collection('settings').doc('about'), SETTINGS.about, { merge: true });
-  batch.set(db.collection('settings').doc('skills'), SETTINGS.skills, { merge: true });
+  batch.set(
+    db.collection('settings').doc('about'),
+    { ...SETTINGS.about, updatedAt: now, version: 1 },
+    { merge: true }
+  );
+  batch.set(
+    db.collection('settings').doc('skills'),
+    { ...SETTINGS.skills, updatedAt: now, version: 1 },
+    { merge: true }
+  );
 
   // social, contact — stored with array wrapper so Firestore can handle them
-  batch.set(db.collection('settings').doc('social'), { links: SETTINGS.social }, { merge: true });
-  batch.set(db.collection('settings').doc('contact'), { items: SETTINGS.contact }, { merge: true });
+  batch.set(
+    db.collection('settings').doc('social'),
+    { links: SETTINGS.social, updatedAt: now, version: 1 },
+    { merge: true }
+  );
+  batch.set(
+    db.collection('settings').doc('contact'),
+    { items: SETTINGS.contact, updatedAt: now, version: 1 },
+    { merge: true }
+  );
   batch.set(
     db.collection('settings').doc('specialties'),
-    { cards: SETTINGS.specialties },
+    { cards: SETTINGS.specialties, updatedAt: now, version: 1 },
     { merge: true }
   );
 

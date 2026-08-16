@@ -1,22 +1,18 @@
 import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
-import { getBlogPostBySlug, getAllBlogPosts } from '@/lib/blog';
+import type { Metadata } from 'next';
+import { getPublishedPostBySlug } from '@/lib/server/content';
 import { BlogPostContent } from '@/components/blog/BlogPostContent';
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const posts = getAllBlogPosts();
-  return posts.map(post => ({ slug: post.slug }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getPublishedPostBySlug(slug);
   if (!post) return {};
-
   return {
     title: `${post.title} | Codegiyu`,
     description: post.excerpt,
@@ -25,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: post.excerpt,
       type: 'article',
       publishedTime: post.date,
-      authors: ['Edward-Precious Omegbu'],
+      authors: [post.author ?? 'Edward-Precious Omegbu'],
       tags: post.tags,
     },
   };
@@ -33,9 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
-
+  const post = await getPublishedPostBySlug(slug);
   if (!post) notFound();
-
   return <BlogPostContent post={post} />;
 }
