@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Project } from '@/lib/types/general';
 import { StaggerReveal } from '@/components/general/ScrollReveal';
 import { ExternalLinkIcon, ArrowRightIcon } from 'lucide-react';
+import { escapeCssUrl } from '@/lib/safe-url';
 
 const CATEGORY_LABELS: Record<string, string> = {
   'web-app': 'Web App',
@@ -56,6 +57,10 @@ export function ProjectGrid({ projects }: ProjectGridProps) {
         })}
       </div>
 
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {filtered.length} {filtered.length === 1 ? 'project' : 'projects'} shown.
+      </p>
+
       {/* Grid */}
       {filtered.length === 0 ? (
         <div className="py-20 text-center">
@@ -91,6 +96,8 @@ function FilterButton({
 }) {
   return (
     <button
+      type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={`px-3 py-1.5 text-xs font-semibold font-montserrat transition-all flex items-center ${
         active
@@ -107,8 +114,12 @@ function ProjectCard({ project }: { project: Project }) {
     <div className="group border border-white/[0.06] bg-dark overflow-hidden hover:border-red/40 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex flex-col">
       {/* Image */}
       <div
+        role="img"
+        aria-label={`${project.title} preview`}
         className="w-full aspect-video bg-cover bg-center bg-dark/80 border-b border-white/[0.06] flex-shrink-0"
-        style={{ backgroundImage: project.image ? `url(${project.image})` : undefined }}
+        style={{
+          backgroundImage: project.image ? `url("${escapeCssUrl(project.image)}")` : undefined,
+        }}
       />
 
       {/* Body */}

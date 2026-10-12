@@ -1,6 +1,7 @@
 import { Timestamp, type DocumentSnapshot } from 'firebase-admin/firestore';
 import type { BlogPost, Project, SiteSettings, SettingsKey } from '@/lib/types/general';
 import type { PostInput, PostRecord, ProjectInput, ProjectRecord } from './types';
+import { isSafeAssetUrl, isSafeHttpUrl } from '@/lib/safe-url';
 
 function asTimestamp(value: unknown, fallback = Timestamp.fromDate(new Date(0))): Timestamp {
   if (value instanceof Timestamp) return value;
@@ -37,6 +38,14 @@ function asStringArray(value: unknown): string[] {
     : [];
 }
 
+function asAssetUrl(value: unknown): string {
+  return typeof value === 'string' && isSafeAssetUrl(value) ? value : '';
+}
+
+function asHttpUrl(value: unknown): string | undefined {
+  return typeof value === 'string' && isSafeHttpUrl(value) ? value : undefined;
+}
+
 export function projectFromSnapshot(snapshot: DocumentSnapshot): ProjectRecord {
   const data = (snapshot.data() ?? {}) as Record<string, unknown>;
   const status = statusOf(data);
@@ -49,15 +58,14 @@ export function projectFromSnapshot(snapshot: DocumentSnapshot): ProjectRecord {
     title: asString(data.title),
     description: asString(data.description),
     longDescription: asString(data.longDescription),
-    image: asString(data.image),
-    gallery: asStringArray(data.gallery),
+    image: asAssetUrl(data.image),
+    gallery: asStringArray(data.gallery).filter(isSafeAssetUrl),
     skills: asStringArray(data.skills),
     challenge: asString(data.challenge),
     solution: asString(data.solution),
     results: asString(data.results),
-    liveLink: typeof data.liveLink === 'string' && data.liveLink ? data.liveLink : undefined,
-    sourceLink:
-      typeof data.sourceLink === 'string' && data.sourceLink ? data.sourceLink : undefined,
+    liveLink: asHttpUrl(data.liveLink),
+    sourceLink: asHttpUrl(data.sourceLink),
     featured: data.featured === true,
     category:
       data.category === 'web-app' ||
@@ -91,7 +99,7 @@ export function postFromSnapshot(snapshot: DocumentSnapshot): PostRecord {
     content: bodyMarkdown,
     date: publishedAt.slice(0, 10),
     tags: asStringArray(data.tags),
-    coverImage: asString(data.coverImage),
+    coverImage: asAssetUrl(data.coverImage),
     author: asString(data.author, 'Edward-Precious Omegbu'),
     readingTime: calculateReadingTime(bodyMarkdown),
     published: status === 'published',

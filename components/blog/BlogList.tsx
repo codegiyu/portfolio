@@ -34,6 +34,7 @@ export function BlogList({ initialPosts, tags }: BlogListProps) {
         <div className="relative">
           <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-ash/40" />
           <input
+            aria-label="Search blog posts"
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -55,6 +56,10 @@ export function BlogList({ initialPosts, tags }: BlogListProps) {
           ))}
         </div>
       </div>
+
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {filtered.length} {filtered.length === 1 ? 'post' : 'posts'} found.
+      </p>
 
       {/* Posts */}
       {filtered.length === 0 ? (
@@ -91,6 +96,8 @@ function TagButton({
 }) {
   return (
     <button
+      type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={`px-3 py-1.5 text-xs font-semibold font-montserrat transition-all ${
         active

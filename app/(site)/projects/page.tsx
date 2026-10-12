@@ -8,6 +8,18 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Projects | Codegiyu',
   description: "A collection of products I've built and shipped.",
+  alternates: { canonical: '/projects' },
+  openGraph: {
+    type: 'website',
+    title: 'Projects | Codegiyu',
+    description: "A collection of products I've built and shipped.",
+    url: '/projects',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Projects | Codegiyu',
+    description: "A collection of products I've built and shipped.",
+  },
 };
 
 export default async function ProjectsPage() {

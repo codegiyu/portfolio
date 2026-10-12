@@ -158,7 +158,7 @@ export default function AboutSettingsPage() {
                   {uploading ? 'Uploading…' : 'Upload'}
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     className="hidden"
                     onChange={handleImageUpload}
                     disabled={uploading}

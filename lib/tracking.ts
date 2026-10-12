@@ -1,11 +1,25 @@
 import { getDb } from './firestore';
-import type { CvDownload, PageView } from './types/general';
+import type { AnalyticsSummary } from './types/general';
 
-// ─── User-Agent parsing ───────────────────────────────────────────────────────
+const COLLECTION = 'analyticsDaily';
+const RETENTION_DAYS = 90;
+const MAX_BUCKETS = 50;
+
+type BucketMap = Record<string, number>;
+
+type DailyAnalytics = {
+  day: string;
+  pageViews: number;
+  cvDownloads: number;
+  pages: BucketMap;
+  referrers: BucketMap;
+  countries: BucketMap;
+  browsers: BucketMap;
+  devices: BucketMap;
+};
 
 export function parseUserAgent(ua: string): { browser: string; os: string; device: string } {
   const s = ua.toLowerCase();
-
   const device = /ipad|tablet/.test(s)
     ? 'tablet'
     : /mobile|android|iphone|ipod/.test(s)
@@ -20,7 +34,8 @@ export function parseUserAgent(ua: string): { browser: string; os: string; devic
   else if (/linux/.test(s)) os = 'Linux';
 
   let browser = 'Unknown';
-  if (/edg\//.test(s)) browser = 'Edge';
+  if (/bot|crawler|spider|slurp|headless/.test(s)) browser = 'Bot';
+  else if (/edg\//.test(s)) browser = 'Edge';
   else if (/opr\/|opera/.test(s)) browser = 'Opera';
   else if (/firefox/.test(s)) browser = 'Firefox';
   else if (/chrome/.test(s)) browser = 'Chrome';
@@ -29,66 +44,151 @@ export function parseUserAgent(ua: string): { browser: string; os: string; devic
   return { device, os, browser };
 }
 
-// ─── IP & geo ─────────────────────────────────────────────────────────────────
-
-export function getClientIp(request: Request): string {
-  return (
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-    request.headers.get('x-real-ip') ??
-    'unknown'
-  );
+export function isLikelyBot(ua: string): boolean {
+  return parseUserAgent(ua).browser === 'Bot';
 }
 
-const LOCAL_IP = /^(127\.|192\.168\.|10\.|::1|unknown)/;
+export function normalizeAnalyticsPath(value: string): string {
+  if (!value.startsWith('/')) return '/';
+  const path = value.split('?')[0].split('#')[0];
+  return path.length > 200 ? path.slice(0, 200) : path || '/';
+}
 
-export async function getGeo(request: Request): Promise<{ country?: string; city?: string }> {
-  // Platform-injected headers (Vercel, Cloudflare) — zero latency
-  const country =
-    request.headers.get('x-vercel-ip-country') ?? request.headers.get('cf-ipcountry') ?? null;
-  const city = request.headers.get('x-vercel-ip-city') ?? request.headers.get('cf-ipcity') ?? null;
-  if (country) return { country, city: city ?? undefined };
-
-  // Fall back to ip-api.com (free, no key required)
-  const ip = getClientIp(request);
-  if (LOCAL_IP.test(ip)) return {};
-
+export function normalizeReferrer(value: string): string {
+  if (!value) return '';
   try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 2000);
-    const res = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city`, {
-      signal: ctrl.signal,
-    });
-    clearTimeout(timer);
-    const data = (await res.json()) as { status: string; country?: string; city?: string };
-    if (data.status === 'success') return { country: data.country, city: data.city };
+    return new URL(value).hostname.slice(0, 120);
   } catch {
-    // geo unavailable
+    return '';
   }
-  return {};
 }
 
-// ─── CV downloads ─────────────────────────────────────────────────────────────
+function countryFromRequest(request: Request): string {
+  return (
+    request.headers.get('x-vercel-ip-country') ??
+    request.headers.get('cf-ipcountry') ??
+    'Unknown'
+  )
+    .slice(0, 2)
+    .toUpperCase();
+}
 
-export async function recordCvDownload(entry: Omit<CvDownload, 'id'>): Promise<void> {
+function dayKey(date = new Date()): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function emptyDay(day: string): DailyAnalytics {
+  return {
+    day,
+    pageViews: 0,
+    cvDownloads: 0,
+    pages: {},
+    referrers: {},
+    countries: {},
+    browsers: {},
+    devices: {},
+  };
+}
+
+function incrementBucket(map: BucketMap, key: string) {
+  if (!key) return;
+  if (map[key] === undefined && Object.keys(map).length >= MAX_BUCKETS) return;
+  map[key] = (map[key] ?? 0) + 1;
+}
+
+async function incrementDaily(
+  request: Request,
+  event: { type: 'pageView' | 'cvDownload'; path?: string; referrer?: string }
+) {
+  const day = dayKey();
   const db = getDb();
-  await db.collection('cv-downloads').add(entry);
+  const ref = db.collection(COLLECTION).doc(day);
+  const ua = request.headers.get('user-agent') ?? '';
+  const parsed = parseUserAgent(ua);
+  if (isLikelyBot(ua)) return false;
+
+  await db.runTransaction(async transaction => {
+    const snapshot = await transaction.get(ref);
+    const current = snapshot.exists ? (snapshot.data() as Partial<DailyAnalytics>) : emptyDay(day);
+    const next: DailyAnalytics = {
+      ...emptyDay(day),
+      ...current,
+      pages: { ...(current.pages ?? {}) },
+      referrers: { ...(current.referrers ?? {}) },
+      countries: { ...(current.countries ?? {}) },
+      browsers: { ...(current.browsers ?? {}) },
+      devices: { ...(current.devices ?? {}) },
+    };
+
+    if (event.type === 'pageView') {
+      next.pageViews += 1;
+      incrementBucket(next.pages, normalizeAnalyticsPath(event.path ?? '/'));
+      incrementBucket(next.referrers, normalizeReferrer(event.referrer ?? ''));
+    } else {
+      next.cvDownloads += 1;
+    }
+    incrementBucket(next.countries, countryFromRequest(request));
+    incrementBucket(next.browsers, parsed.browser);
+    incrementBucket(next.devices, parsed.device);
+    transaction.set(ref, next);
+  });
+  return true;
 }
 
-export async function getCvDownloads(): Promise<CvDownload[]> {
+export async function recordPageView(
+  request: Request,
+  entry: { path: string; referrer?: string }
+): Promise<boolean> {
+  return incrementDaily(request, { type: 'pageView', ...entry });
+}
+
+export async function recordCvDownload(request: Request): Promise<boolean> {
+  return incrementDaily(request, { type: 'cvDownload' });
+}
+
+function mergeBuckets(target: BucketMap, source: BucketMap | undefined) {
+  for (const [key, value] of Object.entries(source ?? {})) target[key] = (target[key] ?? 0) + value;
+}
+
+function topN(map: BucketMap, limit = 10) {
+  return Object.entries(map)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([label, count]) => ({ label, count }));
+}
+
+export async function getAnalyticsSummary(days = 30): Promise<AnalyticsSummary> {
+  const safeDays = Math.max(1, Math.min(RETENTION_DAYS, Math.floor(days)));
+  const keys = Array.from({ length: safeDays }, (_, index) => {
+    const date = new Date();
+    date.setUTCDate(date.getUTCDate() - index);
+    return dayKey(date);
+  });
   const db = getDb();
-  const snap = await db.collection('cv-downloads').orderBy('timestamp', 'desc').limit(500).get();
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as CvDownload);
+  const snapshots = await Promise.all(keys.map(key => db.collection(COLLECTION).doc(key).get()));
+  const result = emptyDay(dayKey());
+  for (const snapshot of snapshots) {
+    if (!snapshot.exists) continue;
+    const data = snapshot.data() as Partial<DailyAnalytics>;
+    result.pageViews += data.pageViews ?? 0;
+    result.cvDownloads += data.cvDownloads ?? 0;
+    mergeBuckets(result.pages, data.pages);
+    mergeBuckets(result.referrers, data.referrers);
+    mergeBuckets(result.countries, data.countries);
+    mergeBuckets(result.browsers, data.browsers);
+    mergeBuckets(result.devices, data.devices);
+  }
+
+  return {
+    days: safeDays,
+    pageViews: result.pageViews,
+    cvDownloads: result.cvDownloads,
+    topPages: topN(result.pages),
+    topReferrers: topN(result.referrers),
+    topCountries: topN(result.countries),
+    browsers: topN(result.browsers),
+    devices: topN(result.devices),
+  };
 }
 
-// ─── Page views ───────────────────────────────────────────────────────────────
-
-export async function recordPageView(entry: Omit<PageView, 'id'>): Promise<void> {
-  const db = getDb();
-  await db.collection('analytics').add(entry);
-}
-
-export async function getPageViews(): Promise<PageView[]> {
-  const db = getDb();
-  const snap = await db.collection('analytics').orderBy('timestamp', 'desc').limit(1000).get();
-  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as PageView);
-}
+export { RETENTION_DAYS };

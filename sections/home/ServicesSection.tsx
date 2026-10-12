@@ -50,6 +50,7 @@ function SkillCard({ name, icon }: { name: string; icon: string }) {
           <Image
             src={icon}
             fill
+            unoptimized
             className="object-contain group-hover:scale-110 transition-transform duration-200"
             alt={name}
             loading="eager"

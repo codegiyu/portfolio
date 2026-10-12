@@ -1,30 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getClientIp, getGeo, parseUserAgent, recordCvDownload } from '@/lib/tracking';
+import { checkAnalyticsRateLimit, getTrustedClientIp } from '@/lib/server/auth/rate-limit';
+import { isLikelyBot, recordCvDownload } from '@/lib/tracking';
+import { z } from 'zod';
+import { logServerError } from '@/lib/server/logging';
+
+const downloadSchema = z.object({ consent: z.literal(true) });
+const noContent = () =>
+  new NextResponse(null, { status: 204, headers: { 'Cache-Control': 'no-store' } });
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as {
-      timezone?: string;
-      screenWidth?: number;
-      screenHeight?: number;
-    };
     const ua = request.headers.get('user-agent') ?? '';
-    const ip = getClientIp(request);
-    const geo = await getGeo(request);
+    const parsed = downloadSchema.safeParse(await request.json());
+    if (!parsed.success || isLikelyBot(ua)) return noContent();
+    const limit = await checkAnalyticsRateLimit(getTrustedClientIp(request));
+    if (!limit.allowed) return noContent();
 
-    await recordCvDownload({
-      timestamp: new Date().toISOString(),
-      ip,
-      ...geo,
-      ...parseUserAgent(ua),
-      timezone: body.timezone ?? '',
-      screenWidth: Number(body.screenWidth) || 0,
-      screenHeight: Number(body.screenHeight) || 0,
-    });
+    await recordCvDownload(request);
 
-    return NextResponse.json({ ok: true }, { status: 201 });
-  } catch (err) {
-    console.error('CV download tracking error:', err);
-    return NextResponse.json({ ok: false }, { status: 500 });
+    return noContent();
+  } catch {
+    logServerError('CV_TRACKING_FAILED');
+    return noContent();
   }
 }

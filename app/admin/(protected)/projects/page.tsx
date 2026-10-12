@@ -18,6 +18,7 @@ export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/projects?scope=admin')
@@ -31,6 +32,7 @@ export default function AdminProjectsPage() {
       })
       .catch(() => {
         setProjects([]);
+        setError('Projects could not be loaded. Try refreshing the page.');
         setLoading(false);
       });
   }, []);
@@ -38,13 +40,16 @@ export default function AdminProjectsPage() {
   async function handleDelete(slug: string, title: string) {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
     setDeleting(slug);
+    setError(null);
     try {
       const res = await fetch(`/api/projects/${slug}`, { method: 'DELETE' });
       if (res.ok) {
         setProjects(prev => prev.filter(p => p.slug !== slug));
       } else {
-        alert('Failed to delete project');
+        setError('Project could not be deleted. Try again.');
       }
+    } catch {
+      setError('Project could not be deleted. Try again.');
     } finally {
       setDeleting(null);
     }
@@ -71,6 +76,12 @@ export default function AdminProjectsPage() {
             New Project
           </Link>
         </div>
+
+        {error && (
+          <p role="alert" className="mb-6 text-sm text-red">
+            {error}
+          </p>
+        )}
 
         <div className="border border-white/[0.06] overflow-hidden">
           <table className="w-full text-sm">
@@ -132,6 +143,7 @@ export default function AdminProjectsPage() {
                         <Link
                           href={`/projects/${project.slug}`}
                           target="_blank"
+                          aria-label={`View ${project.title}`}
                           className="text-ash hover:text-red transition-colors"
                           title="View">
                           <EyeIcon className="size-4" />
@@ -139,14 +151,16 @@ export default function AdminProjectsPage() {
                         <Link
                           href={`/admin/projects/${project.slug}/edit`}
                           className="text-ash hover:text-red transition-colors"
-                          title="Edit">
+                          title="Edit"
+                          aria-label={`Edit ${project.title}`}>
                           <PencilIcon className="size-4" />
                         </Link>
                         <button
                           onClick={() => handleDelete(project.slug, project.title)}
                           disabled={deleting === project.slug}
                           className="text-ash hover:text-red transition-colors disabled:opacity-50"
-                          title="Delete">
+                          title="Delete"
+                          aria-label={`Delete ${project.title}`}>
                           <TrashIcon className="size-4" />
                         </button>
                       </div>

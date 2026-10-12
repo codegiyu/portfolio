@@ -12,6 +12,7 @@ import { cachedContent } from './cache';
 import { isPubliclyVisible, projectFromSnapshot, projectToFirestore } from './adapters';
 import { projectInputSchema, projectUpdateSchema } from './schemas';
 import type { ContentListOptions, ProjectInput, ProjectRecord } from './types';
+import { assetUrls, cleanupReplacedAssets } from '@/lib/server/assets';
 
 const COLLECTION = 'projects';
 const SLUG_COLLECTION = 'contentSlugs';
@@ -38,8 +39,8 @@ async function listPublishedProjectsUncached(): Promise<ProjectRecord[]> {
     return sortProjects(
       snapshot.docs.map(projectFromSnapshot).filter(project => isPubliclyVisible(project))
     );
-  } catch (error) {
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+  } catch {
+    throw new ContentUnavailableError();
   }
 }
 
@@ -49,8 +50,8 @@ async function getPublishedProjectUncached(slug: string): Promise<ProjectRecord 
     if (snapshot.empty) return null;
     const project = projectFromSnapshot(snapshot.docs[0]);
     return isPubliclyVisible(project) ? project : null;
-  } catch (error) {
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+  } catch {
+    throw new ContentUnavailableError();
   }
 }
 
@@ -94,8 +95,8 @@ async function listAdminProjectsUncached(): Promise<ProjectRecord[]> {
   try {
     const snapshot = await getDb().collection(COLLECTION).get();
     return sortProjects(snapshot.docs.map(projectFromSnapshot));
-  } catch (error) {
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+  } catch {
+    throw new ContentUnavailableError();
   }
 }
 
@@ -107,8 +108,8 @@ export async function getAdminProjectBySlug(slug: string): Promise<ProjectRecord
   try {
     const snapshot = await getDb().collection(COLLECTION).where('slug', '==', slug).limit(1).get();
     return snapshot.empty ? null : projectFromSnapshot(snapshot.docs[0]);
-  } catch (error) {
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+  } catch {
+    throw new ContentUnavailableError();
   }
 }
 
@@ -143,7 +144,7 @@ export async function createProject(input: unknown): Promise<ProjectRecord> {
     return projectFromSnapshot(created);
   } catch (error) {
     if (error instanceof ContentConflictError) throw error;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    throw new ContentUnavailableError();
   }
 }
 
@@ -173,6 +174,8 @@ export async function updateProject(
   if (!merged.success)
     throw new ContentValidationError(merged.error.issues.map(issue => issue.message).join('; '));
 
+  const previousAssets = [...assetUrls(current.image), ...assetUrls(current.gallery)];
+
   const db = getDb();
   const ref = db.collection(COLLECTION).doc(current.id);
   const now = Timestamp.now();
@@ -190,16 +193,22 @@ export async function updateProject(
       transaction.set(ref, next);
     });
     const updated = await ref.get();
-    return projectFromSnapshot(updated);
+    const result = projectFromSnapshot(updated);
+    await cleanupReplacedAssets(previousAssets, [
+      ...assetUrls(result.image),
+      ...assetUrls(result.gallery),
+    ]);
+    return result;
   } catch (error) {
     if (error instanceof ContentConflictError || error instanceof ContentNotFoundError) throw error;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    throw new ContentUnavailableError();
   }
 }
 
 export async function deleteProject(slug: string): Promise<void> {
   const current = await getAdminProjectBySlug(slug);
   if (!current) throw new ContentNotFoundError('Project not found');
+  const previousAssets = [...assetUrls(current.image), ...assetUrls(current.gallery)];
   const db = getDb();
   try {
     await db.runTransaction(async transaction => {
@@ -209,9 +218,10 @@ export async function deleteProject(slug: string): Promise<void> {
       transaction.delete(ref);
       transaction.delete(slugRef(slug));
     });
+    await cleanupReplacedAssets(previousAssets, []);
   } catch (error) {
     if (error instanceof ContentNotFoundError) throw error;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    throw new ContentUnavailableError();
   }
 }
 

@@ -26,11 +26,13 @@ export function ScrollReveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
         el,
-        { autoAlpha: 0, y },
+        // Keep content visible even if the animation enhancement fails.
+        { autoAlpha: 1, y },
         {
           autoAlpha: 1,
           y: 0,
@@ -50,7 +52,7 @@ export function ScrollReveal({
   }, [delay, y]);
 
   return (
-    <Tag ref={ref} className={className} style={{ visibility: 'hidden' }}>
+    <Tag ref={ref} className={className}>
       {children}
     </Tag>
   );
@@ -69,6 +71,7 @@ export function StaggerReveal({ children, className, stagger = 0.07, y = 18 }: S
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const items = el.children;
     if (!items.length) return;
@@ -76,7 +79,8 @@ export function StaggerReveal({ children, className, stagger = 0.07, y = 18 }: S
     const ctx = gsap.context(() => {
       gsap.fromTo(
         items,
-        { autoAlpha: 0, y },
+        // Keep content visible even if the animation enhancement fails.
+        { autoAlpha: 1, y },
         {
           autoAlpha: 1,
           y: 0,

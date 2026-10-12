@@ -4,6 +4,7 @@ import path from 'node:path';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getContentDb } from './firestore';
 import { projectToFirestore, postToFirestore } from '@/lib/server/content/adapters';
+import { LOCAL_FALLBACKS } from '@/lib/settings';
 import {
   assertUniqueSlugs,
   parseLocalPosts,
@@ -261,6 +262,29 @@ async function migrateOne<T extends ProjectInput | PostInput>(
   );
 }
 
+async function migrateSettingsMetadata() {
+  const db = getContentDb();
+  for (const key of Object.keys(LOCAL_FALLBACKS)) {
+    const ref = db.collection('settings').doc(key);
+    const snapshot = await ref.get();
+    if (!snapshot.exists) {
+      report.invalid.push(`settings/${key}: missing settings document`);
+      continue;
+    }
+
+    const current = snapshot.data() ?? {};
+    const version = typeof current.version === 'number' ? current.version : 1;
+    const updatedAt = current.updatedAt instanceof Timestamp ? current.updatedAt : now;
+    const needsBackfill =
+      typeof current.version !== 'number' || !(current.updatedAt instanceof Timestamp);
+    if (!needsBackfill) continue;
+
+    report.updated.push(`settings:${key}:metadata`);
+    if (!apply) continue;
+    await withRetry(() => ref.set({ version, updatedAt }, { merge: true }));
+  }
+}
+
 async function main() {
   let projects: MigrationSource<ProjectInput>[] = [];
   let posts: MigrationSource<PostInput>[] = [];
@@ -294,6 +318,7 @@ async function main() {
   }
   for (const source of projects) await migrateOne('project', source);
   for (const source of posts) await migrateOne('post', source);
+  await migrateSettingsMetadata();
   console.log(apply ? 'Migration applied' : 'Dry run only; no writes performed');
   for (const key of Object.keys(report) as ReportKey[])
     console.log(`${key}: ${report[key].length}`);

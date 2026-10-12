@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { listPublishedPosts } from '@/lib/server/content';
+import { siteOrigin } from '@/lib/site-url';
 
 export const dynamic = 'force-dynamic';
-
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://portfolio-codegiyu.vercel.app';
 
 function xml(value: string) {
   return value
@@ -15,6 +14,7 @@ function xml(value: string) {
 }
 
 export async function GET() {
+  const SITE_URL = siteOrigin();
   const posts = await listPublishedPosts();
   const items = posts
     .map(

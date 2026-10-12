@@ -16,6 +16,8 @@ Validate without writing:
 npm run content:migrate -- --dry-run
 ```
 
+The dry run reports legacy project/post documents, missing slug reservations, settings metadata that needs backfilling, and local assets referenced by content but absent from `public/`. It does not write to Firestore.
+
 Apply only after reviewing the dry-run report:
 
 ```bash

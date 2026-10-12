@@ -12,11 +12,13 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'Please enter at least 2 characters' }),
   email: z.string().email({ message: 'Please enter a valid email' }),
   message: z.string().min(10, { message: 'Message too short' }),
+  website: z.string().max(0).optional(),
 });
 const defaultFormValues: z.infer<typeof formSchema> = {
   name: '',
   email: '',
   message: '',
+  website: '',
 };
 
 export const ContactForm = () => {
@@ -43,24 +45,29 @@ export const ContactForm = () => {
   const messageRef = useRef<HTMLTextAreaElement>(null);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      body: JSON.stringify(values),
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-      },
-    });
-    const response = await res.json();
-    console.log({ response });
-    setLoading(false);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify(values),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      const response = (await res.json()) as { success?: boolean; message?: string };
 
-    if (response.data) {
-      setFormValues(defaultFormValues);
-      return true;
-    } else {
-      setFormErrors({ message: [response.message || 'An error occured'] });
+      if (res.ok && response.success) {
+        setFormValues(defaultFormValues);
+        return true;
+      }
+
+      setFormErrors({ message: [response.message || 'Unable to send your message.'] });
       return false;
+    } catch {
+      setFormErrors({ message: ['Network error. Please try again.'] });
+      return false;
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -96,6 +103,18 @@ export const ContactForm = () => {
           errors={errorsVisible ? formErrors.message : undefined}
           ref={messageRef}
         />
+        <label className="sr-only" htmlFor="website">
+          Website
+        </label>
+        <input
+          id="website"
+          name="website"
+          value={formValues.website}
+          onChange={handleInputChange}
+          tabIndex={-1}
+          autoComplete="off"
+          className="hidden"
+        />
       </div>
       <div className="flex justify-center mt-8">
         <GiyuButton
@@ -117,6 +136,9 @@ export const ContactForm = () => {
       ) : (
         ''
       )}
+      <p className="sr-only" aria-live="polite">
+        {submitted ? 'Message sent successfully.' : ''}
+      </p>
     </form>
   );
 };

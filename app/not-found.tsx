@@ -3,7 +3,7 @@ import { Header } from '@/layout/Header';
 
 const NotFound = () => {
   return (
-    <main className="w-full h-screen bg-darkBg grid grid-rows-[auto_1fr]">
+    <main id="main-content" className="w-full h-screen bg-darkBg grid grid-rows-[auto_1fr]">
       <Header hideNav />
       <section className="w-full h-full grid place-items-center">
         <div className="w-fit grid gap-5">

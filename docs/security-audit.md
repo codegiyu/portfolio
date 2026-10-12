@@ -8,15 +8,13 @@ The production audit is gated at high severity with:
 npm audit --omit=dev --audit-level=high
 ```
 
-The current remaining findings are moderate and originate from Firebase Admin's optional
-`@google-cloud/storage` dependency chain (`teeny-request`, `retry-request`, `gaxios`, and
-their nested `uuid`). The application imports Firebase Admin only for App initialization and
-Firestore; it does not import or call the Storage client. npm's suggested remediation is a
-downgrade to Firebase Admin 10.3.0, which is rejected because it is a breaking downgrade and
-would discard the current Node 22/Firebase Admin compatibility.
+The current remaining findings are moderate transitive findings (currently reported through
+`baseline-browser-mapping` and `sprintf-js`/`gray-matter`). The high-severity production
+findings in Next.js, Nodemailer, Firebase Admin, gRPC, multipart parsing, and source-map
+dependencies have been resolved with compatible updates and lockfile overrides. The remaining
+fix suggestions either require a breaking package change or have no safe direct fix.
 
-Revisit this exception whenever Firebase Admin or the Google Cloud Storage dependency chain
-publishes a compatible fix. Do not use `npm audit fix --force` as remediation.
+Revisit this exception on dependency upgrades. Do not use `npm audit fix --force` as remediation.
 
 ## Authentication storage
 
@@ -29,6 +27,10 @@ Authentication failures are logged with stable error codes and variable names on
 service-account JSON, SMTP credentials, and admin email addresses must never be logged.
 
 ## Deployment and recovery checklist
+
+Phase 3 also adds consent-gated aggregate analytics, server-owned media keys, strict upload
+signatures, environment-aware indexing headers, and redacted runtime diagnostics. See
+`docs/privacy.md`, `docs/operations.md`, and `docs/deployment.md` for the current controls.
 
 Before enabling admin access in a preview or production environment:
 

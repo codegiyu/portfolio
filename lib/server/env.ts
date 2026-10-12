@@ -106,6 +106,9 @@ export function getAuthConfig(): AuthConfig {
 export type SmtpConfig = {
   email: string;
   password: string;
+  host: string;
+  port: number;
+  secure: boolean;
 };
 
 export function getSmtpConfig(): SmtpConfig {
@@ -113,7 +116,18 @@ export function getSmtpConfig(): SmtpConfig {
   const password = required('NODEMAILER_PASSWORD');
   const result = emailSchema.safeParse(email);
   if (!result.success) throw new ConfigError('INVALID_NODEMAILER_EMAIL', ['NODEMAILER_EMAIL']);
-  return { email: normalizeEmail(result.data), password };
+  const host = process.env.NODEMAILER_HOST?.trim() || 'smtp.zoho.com';
+  const rawPort = process.env.NODEMAILER_PORT?.trim() || '465';
+  const port = Number(rawPort);
+  const secure = process.env.NODEMAILER_SECURE?.trim().toLowerCase() !== 'false';
+  if (!host || !Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new ConfigError('INVALID_NODEMAILER_TRANSPORT', [
+      'NODEMAILER_HOST',
+      'NODEMAILER_PORT',
+      'NODEMAILER_SECURE',
+    ]);
+  }
+  return { email: normalizeEmail(result.data), password, host, port, secure };
 }
 
 export type MailConfig = SmtpConfig & { adminEmail: string };

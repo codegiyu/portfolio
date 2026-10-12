@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeftIcon, ExternalLinkIcon, GithubIcon } from 'lucide-react';
 import { getPublishedProjectBySlug } from '@/lib/server/content';
+import { siteOrigin } from '@/lib/site-url';
+import { escapeCssUrl } from '@/lib/safe-url';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +15,26 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const project = await getPublishedProjectBySlug(slug);
-  return project ? { title: `${project.title} | Codegiyu`, description: project.description } : {};
+  return project
+    ? {
+        title: `${project.title} | Codegiyu`,
+        description: project.description,
+        alternates: { canonical: `/projects/${project.slug}` },
+        openGraph: {
+          type: 'website',
+          url: `${siteOrigin()}/projects/${project.slug}`,
+          title: project.title,
+          description: project.description,
+          images: project.image ? [project.image] : ['/images/codegiyu-wide.jpg'],
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: project.title,
+          description: project.description,
+          images: project.image ? [project.image] : ['/images/codegiyu-wide.jpg'],
+        },
+      }
+    : { robots: { index: false, follow: false } };
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -82,8 +103,10 @@ export default async function ProjectPage({ params }: PageProps) {
         <div className="border-b border-white/[0.06]">
           <div className="container max-w-5xl py-10">
             <div
+              role="img"
+              aria-label={`${project.title} preview`}
               className="w-full aspect-video bg-cover bg-center bg-dark border border-white/[0.06]"
-              style={{ backgroundImage: `url(${project.image})` }}
+              style={{ backgroundImage: `url("${escapeCssUrl(project.image)}")` }}
             />
           </div>
         </div>

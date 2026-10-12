@@ -1,17 +1,18 @@
 import { MetadataRoute } from 'next';
-
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://portfolio-codegiyu.vercel.app';
+import { isIndexableEnvironment, siteOrigin } from '@/lib/site-url';
 
 export default function robots(): MetadataRoute.Robots {
+  const indexable = isIndexableEnvironment();
+  const siteUrl = siteOrigin();
   return {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/admin', '/api/'],
+        allow: indexable ? '/' : undefined,
+        disallow: indexable ? ['/admin', '/api/'] : ['/'],
       },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
+    sitemap: indexable ? `${siteUrl}/sitemap.xml` : undefined,
+    host: indexable ? siteUrl : undefined,
   };
 }

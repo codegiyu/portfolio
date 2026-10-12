@@ -68,10 +68,10 @@ export async function POST(request: NextRequest) {
     }
 
     const transporter = nodemailer.createTransport({
-      port: 465,
-      host: 'smtp.zoho.com',
+      port: smtp.port,
+      host: smtp.host,
       auth: { user: smtp.email, pass: smtp.password },
-      secure: true,
+      secure: smtp.secure,
     });
 
     await issueMagicLink(email, async ({ token, appUrl }) => {

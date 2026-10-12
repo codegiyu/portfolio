@@ -5,6 +5,7 @@ import { ScrollReveal } from '@/components/general/ScrollReveal';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { AboutSettings, SocialLink } from '@/lib/types/general';
+import { hasAnalyticsConsent } from '@/components/analytics/AnalyticsConsent';
 
 interface AboutSectionProps {
   about: AboutSettings;
@@ -17,19 +18,18 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
   const rolePrefix = roleParts.slice(0, -1).join(' ');
 
   const handleCVDownload = () => {
-    fetch('/api/cv-download', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        screenWidth: window.innerWidth,
-        screenHeight: window.innerHeight,
-      }),
-      keepalive: true,
-    }).catch(() => {});
+    if (hasAnalyticsConsent()) {
+      fetch('/api/cv-download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consent: true }),
+        keepalive: true,
+      }).catch(() => {});
+    }
     const link = document.createElement('a');
     link.href = about.cvUrl;
     link.target = '_blank';
+    link.rel = 'noopener noreferrer';
     link.click();
   };
 
@@ -66,13 +66,15 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
               className="inline-flex items-center justify-center px-6 py-3 bg-red text-light text-sm font-semibold font-montserrat transition-all hover:opacity-90 hover:scale-[1.02] active:scale-100">
               Get In Touch
             </Link>
-            <GiyuButton
-              variant="outline"
-              size="default"
-              onClick={handleCVDownload}
-              className="px-6 py-3 text-sm font-semibold font-montserrat border-white/20 text-ash hover:border-red hover:text-red">
-              Download CV
-            </GiyuButton>
+            {about.cvUrl && (
+              <GiyuButton
+                variant="outline"
+                size="default"
+                onClick={handleCVDownload}
+                className="px-6 py-3 text-sm font-semibold font-montserrat border-white/20 text-ash hover:border-red hover:text-red">
+                Download CV
+              </GiyuButton>
+            )}
           </ScrollReveal>
 
           {/* Social links */}
@@ -91,11 +93,12 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
           <div className="relative">
             <div className="absolute -left-3 top-6 bottom-6 w-[3px] bg-red rounded-full" />
             <Image
-              src={about.profileImage}
+              src={about.profileImage || '/images/eddy-profile.jpg'}
               width={420}
               height={560}
               alt={`${about.name} — ${about.role}`}
               className="w-full object-cover rounded-sm grayscale hover:grayscale-0 transition-all duration-700"
+              unoptimized
               priority
             />
           </div>

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
+import { GET, POST } from '@/app/api/projects/route';
 
 const requireAdmin = vi.hoisted(() => vi.fn().mockResolvedValue(null));
 const createProject = vi.hoisted(() => vi.fn());
@@ -18,7 +19,6 @@ describe('content API contracts', () => {
   });
 
   it('returns 400 for malformed JSON instead of treating it as an outage', async () => {
-    const { POST } = await import('@/app/api/projects/route');
     const response = await POST(
       new NextRequest('http://localhost/api/projects', {
         method: 'POST',
@@ -32,7 +32,6 @@ describe('content API contracts', () => {
   });
 
   it('rejects invalid project category filters', async () => {
-    const { GET } = await import('@/app/api/projects/route');
     const response = await GET(
       new NextRequest('http://localhost/api/projects?category=not-a-category')
     );

@@ -125,9 +125,14 @@ export const useForm = <TSchema extends ZodType<any>>({
 
     setLoading(true);
 
-    const wasSubmittedSuccessfully = await onSubmit(formValues);
-
-    setSubmitted(wasSubmittedSuccessfully);
+    try {
+      const wasSubmittedSuccessfully = await onSubmit(formValues);
+      setSubmitted(wasSubmittedSuccessfully);
+    } catch {
+      setSubmitted(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {

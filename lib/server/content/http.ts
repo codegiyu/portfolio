@@ -2,6 +2,7 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 import { ContentError, ContentValidationError } from './errors';
+import { logServerError } from '@/lib/server/logging';
 
 export async function parseJsonBody(request: Request): Promise<Record<string, unknown>> {
   let body: unknown;
@@ -29,7 +30,10 @@ export function contentErrorResponse(error: unknown, fallback = 'Content request
   if (error instanceof ContentError) {
     return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
   }
-  console.error(fallback, error);
+  logServerError('CONTENT_REQUEST_FAILED', {
+    fallback,
+    errorName: error instanceof Error ? error.name : 'unknown',
+  });
   return NextResponse.json({ error: fallback, code: 'CONTENT_REQUEST_FAILED' }, { status: 503 });
 }
 

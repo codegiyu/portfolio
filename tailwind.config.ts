@@ -38,8 +38,8 @@ const config = {
         dark: '#1E1F23',
         darkOpaque: '#00000099',
         light: '#fafafa',
-        red: '#C81313',
-        ash: '#666874',
+        red: '#EF4444',
+        ash: '#D8D9DF',
         darkAsh: '#66687442',
       },
       boxShadow: {

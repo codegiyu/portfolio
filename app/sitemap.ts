@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next';
 import { listPublishedPosts, listPublishedProjects } from '@/lib/server/content';
+import { isIndexableEnvironment, siteOrigin } from '@/lib/site-url';
 
 export const dynamic = 'force-dynamic';
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://portfolio-codegiyu.vercel.app';
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (!isIndexableEnvironment()) return [];
+  const SITE_URL = siteOrigin();
   const [posts, projects] = await Promise.all([listPublishedPosts(), listPublishedProjects()]);
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: SITE_URL, lastModified: new Date(), changeFrequency: 'monthly', priority: 1 },

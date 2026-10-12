@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Project } from '@/lib/types/general';
 import { ScrollReveal, StaggerReveal } from '@/components/general/ScrollReveal';
 import { ExternalLinkIcon } from 'lucide-react';
+import { escapeCssUrl } from '@/lib/safe-url';
 
 interface WorksSectionProps {
   projects: Project[];
@@ -61,7 +62,9 @@ function ProjectCard({ project }: { project: Project }) {
       {/* Image */}
       <div
         className="w-full aspect-video bg-cover bg-center overflow-hidden border-b border-white/[0.06]"
-        style={{ backgroundImage: project.image ? `url(${project.image})` : undefined }}>
+        style={{
+          backgroundImage: project.image ? `url("${escapeCssUrl(project.image)}")` : undefined,
+        }}>
         <div className="w-full h-full bg-darkBg/10 group-hover:bg-darkBg/0 transition-colors duration-300" />
       </div>
 

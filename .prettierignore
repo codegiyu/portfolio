@@ -1,5 +1,8 @@
 .next
 node_modules
+.lighthouseci
+output
+.tmp
 next-env.d.ts
 *.css
 *.json

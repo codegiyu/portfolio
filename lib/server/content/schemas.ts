@@ -1,10 +1,13 @@
 import { z } from 'zod';
 import type { PostInput, ProjectInput } from './types';
+import { isSafeAssetUrl, isSafeHttpUrl } from '@/lib/safe-url';
+import type { SettingsKey, SiteSettings } from '@/lib/types/general';
+import { ContentValidationError } from './error-types';
 
 const assetUrl = z
   .string()
   .trim()
-  .refine(value => value === '' || /^https?:\/\//i.test(value) || value.startsWith('/'), {
+  .refine(isSafeAssetUrl, {
     message: 'Must be an http(s) URL or a local asset path',
   })
   .transform(value => value || '');
@@ -12,7 +15,7 @@ const assetUrl = z
 const externalUrl = z
   .string()
   .trim()
-  .refine(value => value === '' || /^https?:\/\//i.test(value), {
+  .refine(value => value === '' || isSafeHttpUrl(value), {
     message: 'Must be an http(s) URL',
   })
   .transform(value => value || null);
@@ -76,6 +79,77 @@ export const postInputSchema = z.object({
 
 export const projectUpdateSchema = projectInputSchema.omit({ slug: true }).partial();
 export const postUpdateSchema = postInputSchema.omit({ slug: true }).partial();
+
+const settingsText = (max: number) => z.string().trim().max(max);
+const settingsAsset = z.string().trim().refine(isSafeAssetUrl, {
+  message: 'Must be an http(s) URL or a local asset path',
+});
+const requiredSettingsAsset = z.string().trim().min(1).refine(isSafeAssetUrl, {
+  message: 'Must be an http(s) URL or a local asset path',
+});
+const settingsExternal = z.string().trim().refine(isSafeHttpUrl, {
+  message: 'Must be a safe http(s) URL',
+});
+
+export const settingsSchemas = {
+  about: z.object({
+    greeting: settingsText(160),
+    name: settingsText(160),
+    role: settingsText(160),
+    bio: settingsText(5000),
+    profileImage: requiredSettingsAsset,
+    cvUrl: settingsAsset,
+  }),
+  social: z.object({
+    links: z
+      .array(
+        z.object({
+          platform: settingsText(40).min(1),
+          url: settingsExternal,
+          icon: requiredSettingsAsset,
+          alt: settingsText(160).min(1),
+        })
+      )
+      .max(20),
+  }),
+  contact: z.object({
+    items: z
+      .array(
+        z.object({
+          type: z.enum(['phone', 'email', 'whatsapp', 'message', 'other']),
+          text: settingsText(160),
+          value: settingsText(500),
+        })
+      )
+      .max(20),
+  }),
+  skills: z.object({
+    active: z.array(settingsText(80).min(1)).max(100),
+    icons: z.record(settingsAsset),
+  }),
+  specialties: z.object({
+    cards: z
+      .array(
+        z.object({
+          label: settingsText(80).min(1),
+          description: settingsText(1000),
+        })
+      )
+      .max(20),
+  }),
+} as const;
+
+export function parseSettingsValue<K extends SettingsKey>(key: K, value: unknown): SiteSettings[K] {
+  const result = settingsSchemas[key].safeParse(value);
+  if (!result.success) {
+    throw new ContentValidationError(
+      result.error.issues
+        .map(issue => `${issue.path.join('.') || key}: ${issue.message}`)
+        .join('; ')
+    );
+  }
+  return result.data as SiteSettings[K];
+}
 
 export function normalizeProjectInput(input: unknown): ProjectInput {
   const result = projectInputSchema.safeParse(input);

@@ -11,8 +11,10 @@ import {
 } from './errors';
 import { cachedContent } from './cache';
 import { invalidateSettings } from './revalidate';
+import { parseSettingsValue } from './schemas';
 import type { AdminSettingsRecord } from './types';
 import type { SettingsKey, SiteSettings } from '@/lib/types/general';
+import { assetUrls, cleanupReplacedAssets } from '@/lib/server/assets';
 
 const keys = Object.keys(LOCAL_FALLBACKS) as SettingsKey[];
 
@@ -31,13 +33,18 @@ async function readSettings(): Promise<SiteSettings> {
     }
     const result = {} as SiteSettings;
     snapshots.forEach((snapshot, index) => {
-      (result as unknown as Record<string, unknown>)[keys[index]] = snapshot.data();
+      const key = keys[index];
+      (result as unknown as Record<string, unknown>)[key] = parseSettingsValue(
+        key,
+        snapshot.data()
+      );
     });
     return result;
   } catch (error) {
     if (error instanceof ContentNotFoundError) throw error;
+    if (error instanceof ContentValidationError) throw error;
     if (fixtureMode()) return LOCAL_FALLBACKS;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    throw new ContentUnavailableError();
   }
 }
 
@@ -49,19 +56,21 @@ export async function getAdminSettings(key: SettingsKey): Promise<AdminSettingsR
   try {
     const snapshot = await getDb().collection('settings').doc(key).get();
     if (!snapshot.exists) throw new ContentNotFoundError('Settings not found');
-    const data = snapshot.data() ?? {};
+    const raw = snapshot.data() ?? {};
+    const data = parseSettingsValue(key, raw);
     return {
       key,
       value: data as SiteSettings[SettingsKey],
-      version: typeof data.version === 'number' ? data.version : 1,
+      version: typeof raw.version === 'number' ? raw.version : 1,
       updatedAt:
-        data.updatedAt instanceof Timestamp
-          ? data.updatedAt.toDate().toISOString()
+        raw.updatedAt instanceof Timestamp
+          ? raw.updatedAt.toDate().toISOString()
           : new Date().toISOString(),
     };
   } catch (error) {
     if (error instanceof ContentNotFoundError) throw error;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    if (error instanceof ContentValidationError) throw error;
+    throw new ContentUnavailableError();
   }
 }
 
@@ -70,33 +79,42 @@ export async function updateSettings(
   value: unknown,
   expectedVersion?: number
 ): Promise<AdminSettingsRecord> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    throw new ContentValidationError('Settings value must be an object');
-  }
+  const normalized = parseSettingsValue(key, value);
   const db = getDb();
   const ref = db.collection('settings').doc(key);
   const now = Timestamp.now();
+  let previousAssets: string[] = [];
   try {
     await db.runTransaction(async transaction => {
       const snapshot = await transaction.get(ref);
       const current = snapshot.data() ?? {};
+      if (key === 'about') {
+        previousAssets = [...assetUrls(current.profileImage), ...assetUrls(current.cvUrl)];
+      }
       const version = typeof current.version === 'number' ? current.version : 1;
       if (expectedVersion !== undefined && version !== expectedVersion) {
         throw new ContentConflictError('Settings were changed by another request');
       }
       transaction.set(
         ref,
-        { ...(value as object), version: version + 1, updatedAt: now },
+        { ...normalized, version: version + 1, updatedAt: now },
         { merge: true }
       );
     });
     const updated = await getAdminSettings(key);
+    if (key === 'about') {
+      const value = updated.value as SiteSettings['about'];
+      await cleanupReplacedAssets(previousAssets, [
+        ...assetUrls(value.profileImage),
+        ...assetUrls(value.cvUrl),
+      ]);
+    }
     invalidateSettings();
     return updated;
   } catch (error) {
     if (error instanceof ContentValidationError || error instanceof ContentConflictError)
       throw error;
     if (error instanceof ContentNotFoundError) throw error;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    throw new ContentUnavailableError();
   }
 }

@@ -17,6 +17,9 @@ export const Footer = () => {
           <Link href="/#contact" className="hover:text-red transition-colors">
             Contact
           </Link>
+          <Link href="/privacy" className="hover:text-red transition-colors">
+            Privacy
+          </Link>
         </nav>
 
         <p className="text-xs text-ash/60">

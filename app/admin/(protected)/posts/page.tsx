@@ -11,14 +11,20 @@ export default function AdminPostsPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function fetchPosts() {
-    const res = await fetch('/api/blog?scope=admin');
-    if (res.ok) {
+    try {
+      const res = await fetch('/api/blog?scope=admin');
+      if (!res.ok) throw new Error('Failed to load posts');
       const data = await res.json();
-      setPosts(data);
+      setPosts(Array.isArray(data) ? data : []);
+    } catch {
+      setPosts([]);
+      setError('Posts could not be loaded. Try refreshing the page.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -28,13 +34,16 @@ export default function AdminPostsPage() {
   async function handleDelete(slug: string) {
     if (!confirm(`Delete "${slug}"? This cannot be undone.`)) return;
     setDeleting(slug);
+    setError(null);
     try {
       const res = await fetch(`/api/blog/${slug}`, { method: 'DELETE' });
       if (res.ok) {
         setPosts(prev => prev.filter(p => p.slug !== slug));
       } else {
-        alert('Failed to delete post');
+        setError('Post could not be deleted. Try again.');
       }
+    } catch {
+      setError('Post could not be deleted. Try again.');
     } finally {
       setDeleting(null);
     }
@@ -61,6 +70,12 @@ export default function AdminPostsPage() {
             New Post
           </Link>
         </div>
+
+        {error && (
+          <p role="alert" className="mb-6 text-sm text-red">
+            {error}
+          </p>
+        )}
 
         <div className="border border-white/[0.06] overflow-hidden">
           <table className="w-full text-sm">
@@ -125,6 +140,7 @@ export default function AdminPostsPage() {
                         <Link
                           href={`/blog/${post.slug}`}
                           target="_blank"
+                          aria-label={`View ${post.title}`}
                           className="text-ash hover:text-red transition-colors"
                           title="View">
                           <EyeIcon className="size-4" />
@@ -132,14 +148,16 @@ export default function AdminPostsPage() {
                         <Link
                           href={`/admin/posts/${post.slug}/edit`}
                           className="text-ash hover:text-red transition-colors"
-                          title="Edit">
+                          title="Edit"
+                          aria-label={`Edit ${post.title}`}>
                           <PencilIcon className="size-4" />
                         </Link>
                         <button
                           onClick={() => handleDelete(post.slug)}
                           disabled={deleting === post.slug}
                           className="text-ash hover:text-red transition-colors disabled:opacity-50"
-                          title="Delete">
+                          title="Delete"
+                          aria-label={`Delete ${post.title}`}>
                           <TrashIcon className="size-4" />
                         </button>
                       </div>

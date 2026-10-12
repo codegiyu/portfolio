@@ -31,76 +31,87 @@ const Header = ({ hideNav }: HeaderProps) => {
   const pathname = usePathname();
 
   return (
-    <header className="w-full bg-darkBg/95 backdrop-blur-sm sticky top-0 z-50 border-b border-white/[0.06]">
-      <section className="w-full container flex justify-between items-center font-montserrat py-4">
-        <Logo />
+    <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-red focus:px-4 focus:py-3 focus:text-light">
+        Skip to main content
+      </a>
+      <header className="w-full bg-darkBg/95 backdrop-blur-sm sticky top-0 z-50 border-b border-white/[0.06]">
+        <section className="w-full container flex justify-between items-center font-montserrat py-4">
+          <Logo />
 
-        {!hideNav && (
-          <>
-            <nav className="hidden lg:flex items-center gap-8">
-              {navItems.map(item => (
-                <NavLink key={item.href} item={item} pathname={pathname} />
-              ))}
-            </nav>
+          {!hideNav && (
+            <>
+              <nav aria-label="Primary" className="hidden lg:flex items-center gap-8">
+                {navItems.map(item => (
+                  <NavLink key={item.href} item={item} pathname={pathname} />
+                ))}
+              </nav>
 
-            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-              <SheetTrigger className="w-fit lg:hidden outline-none" asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="lg:hidden hover:bg-transparent"
-                  onClick={() => setMenuOpen(true)}>
-                  <i className="text-2xl text-white">
-                    <Menu />
-                  </i>
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="left"
-                className="w-full h-screen grid grid-cols-[auto_1fr] gap-0 p-0 border-none bg-transparent"
-                aria-describedby={undefined}>
-                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-                <section className="w-[260px] h-full flex-none bg-darkBg border-r border-white/[0.06] py-6 px-5 md:py-10">
-                  <div className="h-full flex flex-col justify-between">
-                    <div className="grid gap-16">
-                      <div className="flex items-center justify-between">
-                        <Logo />
-                        <Button variant="ghost" className="p-2" onClick={() => setMenuOpen(false)}>
-                          <XIcon className="size-5 text-red" />
-                        </Button>
+              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetTrigger className="w-fit lg:hidden outline-none" asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Open navigation menu"
+                    className="lg:hidden hover:bg-transparent">
+                    <i className="text-2xl text-white">
+                      <Menu />
+                    </i>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="left"
+                  className="w-full h-screen grid grid-cols-[auto_1fr] gap-0 p-0 border-none bg-transparent"
+                  aria-describedby={undefined}>
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                  <section className="w-[260px] h-full flex-none bg-darkBg border-r border-white/[0.06] py-6 px-5 md:py-10">
+                    <div className="h-full flex flex-col justify-between">
+                      <div className="grid gap-16">
+                        <div className="flex items-center justify-between">
+                          <Logo />
+                          <Button
+                            variant="ghost"
+                            className="p-2"
+                            aria-label="Close navigation menu"
+                            onClick={() => setMenuOpen(false)}>
+                            <XIcon className="size-5 text-red" />
+                          </Button>
+                        </div>
+                        <nav aria-label="Mobile primary">
+                          <ul className="grid gap-6">
+                            {navItems.map(item => (
+                              <li key={item.href}>
+                                <MobileNavLink
+                                  item={item}
+                                  pathname={pathname}
+                                  onClose={() => setMenuOpen(false)}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        </nav>
                       </div>
-                      <nav>
-                        <ul className="grid gap-6">
-                          {navItems.map(item => (
-                            <li key={item.href}>
-                              <MobileNavLink
-                                item={item}
-                                pathname={pathname}
-                                onClose={() => setMenuOpen(false)}
-                              />
-                            </li>
-                          ))}
-                        </ul>
-                      </nav>
+                      <p className="text-sm text-ash">&copy; {new Date().getFullYear()} Codegiyu</p>
                     </div>
-                    <p className="text-sm text-ash">&copy; {new Date().getFullYear()} Codegiyu</p>
-                  </div>
-                </section>
-                <SheetClose className="h-full w-full flex-1" />
-              </SheetContent>
-            </Sheet>
-          </>
-        )}
+                  </section>
+                  <SheetClose className="h-full w-full flex-1" />
+                </SheetContent>
+              </Sheet>
+            </>
+          )}
 
-        {hideNav && (
-          <Link
-            href="/"
-            className="text-sm text-ash hover:text-red transition-colors font-semibold">
-            ← Home
-          </Link>
-        )}
-      </section>
-    </header>
+          {hideNav && (
+            <Link
+              href="/"
+              className="text-sm text-ash hover:text-red transition-colors font-semibold">
+              ← Home
+            </Link>
+          )}
+        </section>
+      </header>
+    </>
   );
 };
 

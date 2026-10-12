@@ -12,6 +12,7 @@ import { cachedContent } from './cache';
 import { isPubliclyVisible, postFromSnapshot, postToFirestore } from './adapters';
 import { postInputSchema, postUpdateSchema } from './schemas';
 import type { ContentListOptions, PostInput, PostRecord } from './types';
+import { assetUrls, cleanupReplacedAssets } from '@/lib/server/assets';
 
 const COLLECTION = 'blog';
 const SLUG_COLLECTION = 'contentSlugs';
@@ -31,8 +32,8 @@ async function listPublishedPostsUncached(): Promise<PostRecord[]> {
       .orderBy('publishedAt', 'desc')
       .get();
     return sortPosts(snapshot.docs.map(postFromSnapshot).filter(post => isPubliclyVisible(post)));
-  } catch (error) {
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+  } catch {
+    throw new ContentUnavailableError();
   }
 }
 
@@ -42,8 +43,8 @@ async function getPublishedPostUncached(slug: string): Promise<PostRecord | null
     if (snapshot.empty) return null;
     const post = postFromSnapshot(snapshot.docs[0]);
     return isPubliclyVisible(post) ? post : null;
-  } catch (error) {
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+  } catch {
+    throw new ContentUnavailableError();
   }
 }
 
@@ -82,8 +83,8 @@ async function listAdminPostsUncached(): Promise<PostRecord[]> {
   try {
     const snapshot = await getDb().collection(COLLECTION).get();
     return sortPosts(snapshot.docs.map(postFromSnapshot));
-  } catch (error) {
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+  } catch {
+    throw new ContentUnavailableError();
   }
 }
 
@@ -95,8 +96,8 @@ export async function getAdminPostBySlug(slug: string): Promise<PostRecord | nul
   try {
     const snapshot = await getDb().collection(COLLECTION).where('slug', '==', slug).limit(1).get();
     return snapshot.empty ? null : postFromSnapshot(snapshot.docs[0]);
-  } catch (error) {
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+  } catch {
+    throw new ContentUnavailableError();
   }
 }
 
@@ -128,7 +129,7 @@ export async function createPost(input: unknown): Promise<PostRecord> {
     return postFromSnapshot(await ref.get());
   } catch (error) {
     if (error instanceof ContentConflictError) throw error;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    throw new ContentUnavailableError();
   }
 }
 
@@ -157,6 +158,8 @@ export async function updatePost(
   if (!merged.success)
     throw new ContentValidationError(merged.error.issues.map(issue => issue.message).join('; '));
 
+  const previousAssets = assetUrls(current.coverImage);
+
   const db = getDb();
   const ref = db.collection(COLLECTION).doc(current.id);
   const now = Timestamp.now();
@@ -173,16 +176,19 @@ export async function updatePost(
       next.sourceHash = null;
       transaction.set(ref, next);
     });
-    return postFromSnapshot(await ref.get());
+    const result = postFromSnapshot(await ref.get());
+    await cleanupReplacedAssets(previousAssets, assetUrls(result.coverImage));
+    return result;
   } catch (error) {
     if (error instanceof ContentConflictError || error instanceof ContentNotFoundError) throw error;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    throw new ContentUnavailableError();
   }
 }
 
 export async function deletePost(slug: string): Promise<void> {
   const current = await getAdminPostBySlug(slug);
   if (!current) throw new ContentNotFoundError('Post not found');
+  const previousAssets = assetUrls(current.coverImage);
   const db = getDb();
   try {
     await db.runTransaction(async transaction => {
@@ -192,9 +198,10 @@ export async function deletePost(slug: string): Promise<void> {
       transaction.delete(ref);
       transaction.delete(db.collection(SLUG_COLLECTION).doc(`post:${slug}`));
     });
+    await cleanupReplacedAssets(previousAssets, []);
   } catch (error) {
     if (error instanceof ContentNotFoundError) throw error;
-    throw new ContentUnavailableError(error instanceof Error ? error.message : undefined);
+    throw new ContentUnavailableError();
   }
 }
 

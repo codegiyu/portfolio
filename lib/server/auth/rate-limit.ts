@@ -22,3 +22,14 @@ export function checkSendLinkRateLimit(email: string, ip: string): Promise<RateL
 export function checkVerifyRateLimit(ip: string): Promise<RateLimitDecision> {
   return consumeRateLimit([{ scope: 'verify-ip', key: ip, windowMs: 15 * 60 * 1000, max: 20 }]);
 }
+
+export function checkContactRateLimit(email: string, ip: string): Promise<RateLimitDecision> {
+  return consumeRateLimit([
+    { scope: 'contact-email', key: email.trim().toLowerCase(), windowMs: 60 * 60 * 1000, max: 3 },
+    { scope: 'contact-ip', key: ip, windowMs: 15 * 60 * 1000, max: 5 },
+  ]);
+}
+
+export function checkAnalyticsRateLimit(ip: string): Promise<RateLimitDecision> {
+  return consumeRateLimit([{ scope: 'analytics-ip', key: ip, windowMs: 60 * 1000, max: 30 }]);
+}

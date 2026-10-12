@@ -7,6 +7,9 @@
 
 # testing
 /coverage
+/output/
+/.lighthouseci/
+/.tmp/
 
 # next.js
 /.next/
@@ -14,6 +17,7 @@
 
 # production
 /build
+/backups/
 
 # misc
 .DS_Store

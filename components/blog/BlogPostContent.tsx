@@ -9,6 +9,7 @@ import { ArrowLeftIcon, ClockIcon, CalendarIcon } from 'lucide-react';
 import { BlogPost } from '@/lib/types/general';
 import { formatDate } from '@/lib/utils';
 import { useEffect, useState } from 'react';
+import { siteOrigin } from '@/lib/site-url';
 
 interface TocItem {
   id: string;
@@ -34,6 +35,7 @@ function extractToc(markdown: string): TocItem[] {
 
 export function BlogPostContent({ post }: { post: BlogPost }) {
   const toc = extractToc(post.content);
+  const shareUrl = `${siteOrigin()}/blog/${post.slug}`;
   const [activeId, setActiveId] = useState('');
 
   useEffect(() => {
@@ -229,13 +231,14 @@ export function BlogPostContent({ post }: { post: BlogPost }) {
                 Share
               </span>
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://portfolio-codegiyu.vercel.app/blog/${post.slug}`)}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs font-semibold text-ash hover:text-red transition-colors border border-white/10 hover:border-red/40 px-3 py-1.5 rounded-sm">
                 Share on X
               </a>
               <button
+                type="button"
                 onClick={() => navigator.clipboard.writeText(window.location.href)}
                 className="text-xs font-semibold text-ash hover:text-red transition-colors border border-white/10 hover:border-red/40 px-3 py-1.5 rounded-sm">
                 Copy link

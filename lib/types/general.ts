@@ -148,29 +148,18 @@ export interface AdminUser {
 }
 
 // Analytics types
-export interface CvDownload {
-  id: string;
-  timestamp: string;
-  ip: string;
-  country?: string;
-  city?: string;
-  browser: string;
-  os: string;
-  device: string;
-  timezone: string;
-  screenWidth: number;
-  screenHeight: number;
+export interface AnalyticsBucket {
+  label: string;
+  count: number;
 }
 
-export interface PageView {
-  id: string;
-  timestamp: string;
-  ip: string;
-  country?: string;
-  city?: string;
-  browser: string;
-  os: string;
-  device: string;
-  path: string;
-  referrer: string;
+export interface AnalyticsSummary {
+  days: number;
+  pageViews: number;
+  cvDownloads: number;
+  topPages: AnalyticsBucket[];
+  topReferrers: AnalyticsBucket[];
+  topCountries: AnalyticsBucket[];
+  browsers: AnalyticsBucket[];
+  devices: AnalyticsBucket[];
 }

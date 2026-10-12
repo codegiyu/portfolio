@@ -24,6 +24,7 @@ const GiyuInput = forwardRef<HTMLInputElement, GiyuInputProps>(
     },
     ref
   ) => {
+    const errorId = props.id ? `${props.id}-error` : props.name ? `${props.name}-error` : undefined;
     return (
       <label className={cn('w-full grid gap-2.5', wrapClassName)}>
         <div className="flex items-center justify-between">
@@ -47,10 +48,19 @@ const GiyuInput = forwardRef<HTMLInputElement, GiyuInputProps>(
           )}
         </div>
         <div className="relative">
-          <Input type={type} className={cn('', className)} ref={ref} {...props} />
+          <Input
+            type={type}
+            className={cn('', className)}
+            ref={ref}
+            aria-invalid={errors.length > 0 || undefined}
+            aria-describedby={errors.length > 0 ? errorId : undefined}
+            {...props}
+          />
         </div>
         {errors.length > 0 && (
-          <p className={cn('text-[0.875rem] font-medium text-red')}>{errors[0]}</p>
+          <p id={errorId} role="alert" className={cn('text-[0.875rem] font-medium text-red')}>
+            {errors[0]}
+          </p>
         )}
       </label>
     );
