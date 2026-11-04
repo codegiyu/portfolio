@@ -53,7 +53,7 @@ export const useForm = <TSchema extends ZodType<any>>({
 
   const validateForm = (obj?: Partial<FormValues>) => {
     const errors =
-      formSchema.safeParse({ ...formValues, ...obj }).error?.formErrors.fieldErrors ?? {};
+      formSchema.safeParse({ ...formValues, ...obj }).error?.flatten().fieldErrors ?? {};
 
     setFormErrors(() => {
       return errors as FormErrors;

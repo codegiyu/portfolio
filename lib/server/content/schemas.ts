@@ -125,7 +125,7 @@ export const settingsSchemas = {
   }),
   skills: z.object({
     active: z.array(settingsText(80).min(1)).max(100),
-    icons: z.record(settingsAsset),
+    icons: z.record(z.string(), settingsAsset),
   }),
   specialties: z.object({
     cards: z
