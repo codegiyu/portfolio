@@ -65,8 +65,8 @@ export const SKILLS: { skill: Skill }[] = [
   { skill: 'React' },
   { skill: 'Next JS' },
   { skill: 'Node.js' },
-  // { skill: 'Express JS' },
-  // { skill: 'Mongo DB' },
+  { skill: 'Express JS' },
+  { skill: 'Mongo DB' },
   // { skill: "PHP" },
   // { skill: "MySQL" },
 ];
