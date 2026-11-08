@@ -133,6 +133,26 @@
     scrollbar-face-color: #ffffff26; /* Thumb color for old IE */
   }
 
+  /* Dark-always scrollbar for admin UI (no html.dark dependency) */
+  .scrollbar-dark {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+  .scrollbar-dark::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .scrollbar-dark::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-dark::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+  .scrollbar-dark::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
   /* Remove arrows from number inputs */
   /* Chrome, Safari, Edge, Opera */
   input::-webkit-outer-spin-button,

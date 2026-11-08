@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 function VerifyContent() {
@@ -8,8 +8,13 @@ function VerifyContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const router = useRouter();
+  const extracted = useRef(false);
 
   useEffect(() => {
+    // React Strict Mode mounts twice in dev; guard so the second run (after
+    // history.replaceState already cleared the hash) doesn't overwrite the token.
+    if (extracted.current) return;
+    extracted.current = true;
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
     const fragmentToken = hash.get('token');
     window.history.replaceState(null, '', '/admin/verify');

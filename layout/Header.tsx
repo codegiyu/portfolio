@@ -130,6 +130,7 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
       e.preventDefault();
       document.querySelector(anchor)?.scrollIntoView({ behavior: 'smooth' });
     }
+    // Cross-page: let <Link> navigate normally; ScrollToHash on the homepage handles the scroll
   };
 
   return (
@@ -168,6 +169,7 @@ function MobileNavLink({
         document.querySelector(item.anchor!)?.scrollIntoView({ behavior: 'smooth' });
       }, 300);
     }
+    // Cross-page: let <Link> navigate normally; ScrollToHash on the homepage handles the scroll
   };
 
   return (

@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Project } from '@/lib/types/general';
-import { ArrowLeftIcon, SaveIcon } from 'lucide-react';
+import { ArrowLeftIcon, SaveIcon, UploadIcon } from 'lucide-react';
 
 const CATEGORIES = ['web-app', 'landing', 'dashboard', 'mobile', 'other'] as const;
 
@@ -32,7 +31,9 @@ export default function EditProjectPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [uploadMsg, setUploadMsg] = useState('');
   const [version, setVersion] = useState<number | undefined>();
 
   useEffect(() => {
@@ -70,6 +71,27 @@ export default function EditProjectPage() {
     setForm(prev => ({ ...prev, [key]: value }));
   }
 
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadMsg('Uploading…');
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder', 'project');
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('Upload failed');
+      const { url } = await res.json();
+      set('image', url);
+      setUploadMsg('Uploaded — save to apply.');
+    } catch {
+      setUploadMsg('Upload failed.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -102,16 +124,14 @@ export default function EditProjectPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-darkBg flex items-center justify-center">
+      <div className="flex items-center justify-center py-24">
         <div className="inline-block w-8 h-8 border-2 border-white/10 border-t-red rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-darkBg text-light">
-      <AdminHeader />
-
+    <>
       <div className="border-b border-white/[0.06] px-6 py-3 flex items-center gap-3">
         <Link
           href="/admin/projects"
@@ -145,7 +165,7 @@ export default function EditProjectPage() {
                 required
                 value={form.description}
                 onChange={e => set('description', e.target.value)}
-                className={`${inputCls} resize-none`}
+                className={`${inputCls} resize-none scrollbar-dark`}
               />
             </Field>
             <Field label="Long Description">
@@ -153,7 +173,7 @@ export default function EditProjectPage() {
                 rows={4}
                 value={form.longDescription}
                 onChange={e => set('longDescription', e.target.value)}
-                className={`${inputCls} resize-none`}
+                className={`${inputCls} resize-none scrollbar-dark`}
               />
             </Field>
             <Field label="Challenge">
@@ -161,7 +181,7 @@ export default function EditProjectPage() {
                 rows={3}
                 value={form.challenge}
                 onChange={e => set('challenge', e.target.value)}
-                className={`${inputCls} resize-none`}
+                className={`${inputCls} resize-none scrollbar-dark`}
               />
             </Field>
             <Field label="Approach / Solution">
@@ -169,7 +189,7 @@ export default function EditProjectPage() {
                 rows={3}
                 value={form.solution}
                 onChange={e => set('solution', e.target.value)}
-                className={`${inputCls} resize-none`}
+                className={`${inputCls} resize-none scrollbar-dark`}
               />
             </Field>
             <Field label="Outcomes / Results">
@@ -177,7 +197,7 @@ export default function EditProjectPage() {
                 rows={3}
                 value={form.results}
                 onChange={e => set('results', e.target.value)}
-                className={`${inputCls} resize-none`}
+                className={`${inputCls} resize-none scrollbar-dark`}
               />
             </Field>
           </div>
@@ -189,13 +209,32 @@ export default function EditProjectPage() {
                 {slug}
               </p>
             </Field>
-            <Field label="Cover Image URL">
+            <Field label="Cover Image">
+              {form.image && (
+                <div
+                  className="w-full aspect-video bg-cover bg-center bg-dark/80 border border-white/[0.06] mb-2"
+                  style={{ backgroundImage: `url("${form.image}")` }}
+                />
+              )}
               <input
                 type="text"
                 value={form.image}
                 onChange={e => set('image', e.target.value)}
-                className={inputCls}
+                placeholder="/images/projects/... or https://..."
+                className={`${inputCls} mb-1.5`}
               />
+              <label className="flex items-center gap-1.5 w-fit px-3 py-1.5 border border-white/10 text-ash hover:border-red/50 hover:text-red transition-colors text-xs font-semibold cursor-pointer">
+                <UploadIcon className="size-3.5" />
+                {uploading ? 'Uploading…' : 'Upload image'}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleCoverUpload}
+                  disabled={uploading}
+                />
+              </label>
+              {uploadMsg && <p className="text-xs text-ash/60 mt-1.5">{uploadMsg}</p>}
             </Field>
             <Field label="Skills (comma separated)">
               <input
@@ -258,7 +297,7 @@ export default function EditProjectPage() {
           </div>
         </form>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AdminHeader } from '@/components/admin/AdminHeader';
 import { ArrowLeftIcon, SaveIcon } from 'lucide-react';
 
 const CATEGORIES = ['web-app', 'landing', 'dashboard', 'mobile', 'other'] as const;
@@ -75,9 +74,7 @@ export default function NewProjectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-darkBg text-light">
-      <AdminHeader />
-
+    <>
       <div className="border-b border-white/[0.06] px-6 py-3 flex items-center gap-3">
         <Link
           href="/admin/projects"
@@ -242,7 +239,7 @@ export default function NewProjectPage() {
           </div>
         </form>
       </div>
-    </div>
+    </>
   );
 }
 

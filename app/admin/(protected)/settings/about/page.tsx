@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { AdminHeader } from '@/components/admin/AdminHeader';
 import { ChevronLeftIcon, SaveIcon, UploadIcon } from 'lucide-react';
 import type { AboutSettings } from '@/lib/types/general';
 
@@ -83,107 +82,103 @@ export default function AboutSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-darkBg text-light">
-      <AdminHeader />
-
-      <div className="max-w-2xl mx-auto px-6 py-10">
-        <div className="flex items-center gap-3 mb-8">
-          <Link href="/admin/settings" className="text-ash hover:text-red transition-colors">
-            <ChevronLeftIcon className="size-5" />
-          </Link>
-          <div>
-            <h2 className="font-montserrat font-black text-2xl text-light">About</h2>
-            <p className="text-ash text-sm mt-0.5">Hero section content</p>
-          </div>
+    <div className="max-w-2xl mx-auto px-6 py-10">
+      <div className="flex items-center gap-3 mb-8">
+        <Link href="/admin/settings" className="text-ash hover:text-red transition-colors">
+          <ChevronLeftIcon className="size-5" />
+        </Link>
+        <div>
+          <h2 className="font-montserrat font-black text-2xl text-light">About</h2>
+          <p className="text-ash text-sm mt-0.5">Hero section content</p>
         </div>
-
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-6 h-6 border-2 border-white/10 border-t-red rounded-full animate-spin" />
-          </div>
-        ) : (
-          <form onSubmit={handleSave} className="flex flex-col gap-5">
-            <Field label="Greeting line" hint="e.g. Hi, I'm Edward">
-              <input
-                className={INPUT}
-                value={form.greeting}
-                onChange={e => set('greeting', e.target.value)}
-              />
-            </Field>
-
-            <Field label="Name">
-              <input
-                className={INPUT}
-                value={form.name}
-                onChange={e => set('name', e.target.value)}
-              />
-            </Field>
-
-            <Field label="Role / title" hint="Last word is highlighted in red">
-              <input
-                className={INPUT}
-                value={form.role}
-                onChange={e => set('role', e.target.value)}
-              />
-            </Field>
-
-            <Field label="Bio">
-              <textarea
-                rows={4}
-                className={INPUT + ' resize-none'}
-                value={form.bio}
-                onChange={e => set('bio', e.target.value)}
-              />
-            </Field>
-
-            <Field label="CV URL" hint="Google Drive or R2 public link">
-              <input
-                className={INPUT}
-                value={form.cvUrl}
-                onChange={e => set('cvUrl', e.target.value)}
-                placeholder="https://..."
-              />
-            </Field>
-
-            <Field label="Profile image">
-              <div className="flex items-center gap-3">
-                <input
-                  className={INPUT + ' flex-1'}
-                  value={form.profileImage}
-                  onChange={e => set('profileImage', e.target.value)}
-                  placeholder="/images/... or https://..."
-                />
-                <label className="flex items-center gap-1.5 px-3 py-2 border border-white/10 text-ash hover:border-red/50 hover:text-red transition-colors text-xs font-semibold cursor-pointer flex-shrink-0">
-                  <UploadIcon className="size-3.5" />
-                  {uploading ? 'Uploading…' : 'Upload'}
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    disabled={uploading}
-                  />
-                </label>
-              </div>
-            </Field>
-
-            {message && (
-              <p
-                className={`text-sm font-medium ${message.type === 'ok' ? 'text-green-400' : 'text-red'}`}>
-                {message.text}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-red text-light text-sm font-semibold font-montserrat hover:opacity-90 transition-all disabled:opacity-50 self-start mt-2">
-              <SaveIcon className="size-4" />
-              {saving ? 'Saving…' : 'Save Changes'}
-            </button>
-          </form>
-        )}
       </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="w-6 h-6 border-2 border-white/10 border-t-red rounded-full animate-spin" />
+        </div>
+      ) : (
+        <form onSubmit={handleSave} className="flex flex-col gap-5">
+          <Field label="Greeting line" hint="e.g. Hi, I'm Edward">
+            <input
+              className={INPUT}
+              value={form.greeting}
+              onChange={e => set('greeting', e.target.value)}
+            />
+          </Field>
+
+          <Field label="Name">
+            <input
+              className={INPUT}
+              value={form.name}
+              onChange={e => set('name', e.target.value)}
+            />
+          </Field>
+
+          <Field label="Role / title" hint="Last word is highlighted in red">
+            <input
+              className={INPUT}
+              value={form.role}
+              onChange={e => set('role', e.target.value)}
+            />
+          </Field>
+
+          <Field label="Bio">
+            <textarea
+              rows={4}
+              className={INPUT + ' resize-none'}
+              value={form.bio}
+              onChange={e => set('bio', e.target.value)}
+            />
+          </Field>
+
+          <Field label="CV URL" hint="Google Drive or R2 public link">
+            <input
+              className={INPUT}
+              value={form.cvUrl}
+              onChange={e => set('cvUrl', e.target.value)}
+              placeholder="https://..."
+            />
+          </Field>
+
+          <Field label="Profile image">
+            <div className="flex items-center gap-3">
+              <input
+                className={INPUT + ' flex-1'}
+                value={form.profileImage}
+                onChange={e => set('profileImage', e.target.value)}
+                placeholder="/images/... or https://..."
+              />
+              <label className="flex items-center gap-1.5 px-3 py-2 border border-white/10 text-ash hover:border-red/50 hover:text-red transition-colors text-xs font-semibold cursor-pointer flex-shrink-0">
+                <UploadIcon className="size-3.5" />
+                {uploading ? 'Uploading…' : 'Upload'}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+              </label>
+            </div>
+          </Field>
+
+          {message && (
+            <p
+              className={`text-sm font-medium ${message.type === 'ok' ? 'text-green-400' : 'text-red'}`}>
+              {message.text}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-red text-light text-sm font-semibold font-montserrat hover:opacity-90 transition-all disabled:opacity-50 self-start mt-2">
+            <SaveIcon className="size-4" />
+            {saving ? 'Saving…' : 'Save Changes'}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
