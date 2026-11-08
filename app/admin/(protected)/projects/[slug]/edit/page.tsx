@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { AdminHeader } from '@/components/admin/AdminHeader';
 import { Project } from '@/lib/types/general';
 import { ArrowLeftIcon, SaveIcon } from 'lucide-react';
 
@@ -102,162 +101,158 @@ export default function EditProjectPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-darkBg flex items-center justify-center">
+      <div className="flex items-center justify-center py-24">
         <div className="inline-block w-8 h-8 border-2 border-white/10 border-t-red rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-darkBg text-light">
-      <AdminHeader />
+    <div className="border-b border-white/[0.06] px-6 py-3 flex items-center gap-3">
+      <Link
+        href="/admin/projects"
+        className="flex items-center gap-1.5 text-ash hover:text-red transition-colors text-xs font-semibold">
+        <ArrowLeftIcon className="size-3.5" /> Projects
+      </Link>
+      <span className="text-ash/30">/</span>
+      <span className="text-ash text-xs font-mono">{slug}</span>
+    </div>
 
-      <div className="border-b border-white/[0.06] px-6 py-3 flex items-center gap-3">
-        <Link
-          href="/admin/projects"
-          className="flex items-center gap-1.5 text-ash hover:text-red transition-colors text-xs font-semibold">
-          <ArrowLeftIcon className="size-3.5" /> Projects
-        </Link>
-        <span className="text-ash/30">/</span>
-        <span className="text-ash text-xs font-mono">{slug}</span>
-      </div>
+    <div className="max-w-5xl mx-auto px-6 py-10">
+      {error && (
+        <div className="mb-6 p-4 border border-red/50 bg-red/10 text-red text-sm">{error}</div>
+      )}
 
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        {error && (
-          <div className="mb-6 p-4 border border-red/50 bg-red/10 text-red text-sm">{error}</div>
-        )}
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main */}
+        <div className="lg:col-span-2 space-y-5">
+          <Field label="Title">
+            <input
+              type="text"
+              required
+              value={form.title}
+              onChange={e => set('title', e.target.value)}
+              className={inputCls + ' font-montserrat font-bold text-base'}
+            />
+          </Field>
+          <Field label="Short Description">
+            <textarea
+              rows={2}
+              required
+              value={form.description}
+              onChange={e => set('description', e.target.value)}
+              className={`${inputCls} resize-none`}
+            />
+          </Field>
+          <Field label="Long Description">
+            <textarea
+              rows={4}
+              value={form.longDescription}
+              onChange={e => set('longDescription', e.target.value)}
+              className={`${inputCls} resize-none`}
+            />
+          </Field>
+          <Field label="Challenge">
+            <textarea
+              rows={3}
+              value={form.challenge}
+              onChange={e => set('challenge', e.target.value)}
+              className={`${inputCls} resize-none`}
+            />
+          </Field>
+          <Field label="Approach / Solution">
+            <textarea
+              rows={3}
+              value={form.solution}
+              onChange={e => set('solution', e.target.value)}
+              className={`${inputCls} resize-none`}
+            />
+          </Field>
+          <Field label="Outcomes / Results">
+            <textarea
+              rows={3}
+              value={form.results}
+              onChange={e => set('results', e.target.value)}
+              className={`${inputCls} resize-none`}
+            />
+          </Field>
+        </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main */}
-          <div className="lg:col-span-2 space-y-5">
-            <Field label="Title">
-              <input
-                type="text"
-                required
-                value={form.title}
-                onChange={e => set('title', e.target.value)}
-                className={inputCls + ' font-montserrat font-bold text-base'}
-              />
-            </Field>
-            <Field label="Short Description">
-              <textarea
-                rows={2}
-                required
-                value={form.description}
-                onChange={e => set('description', e.target.value)}
-                className={`${inputCls} resize-none`}
-              />
-            </Field>
-            <Field label="Long Description">
-              <textarea
-                rows={4}
-                value={form.longDescription}
-                onChange={e => set('longDescription', e.target.value)}
-                className={`${inputCls} resize-none`}
-              />
-            </Field>
-            <Field label="Challenge">
-              <textarea
-                rows={3}
-                value={form.challenge}
-                onChange={e => set('challenge', e.target.value)}
-                className={`${inputCls} resize-none`}
-              />
-            </Field>
-            <Field label="Approach / Solution">
-              <textarea
-                rows={3}
-                value={form.solution}
-                onChange={e => set('solution', e.target.value)}
-                className={`${inputCls} resize-none`}
-              />
-            </Field>
-            <Field label="Outcomes / Results">
-              <textarea
-                rows={3}
-                value={form.results}
-                onChange={e => set('results', e.target.value)}
-                className={`${inputCls} resize-none`}
-              />
-            </Field>
+        {/* Sidebar */}
+        <div className="space-y-5">
+          <Field label="Slug">
+            <p className="px-3 py-2.5 text-sm font-mono text-ash/60 border border-white/[0.04] bg-dark/50">
+              {slug}
+            </p>
+          </Field>
+          <Field label="Cover Image URL">
+            <input
+              type="text"
+              value={form.image}
+              onChange={e => set('image', e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Skills (comma separated)">
+            <input
+              type="text"
+              value={form.skills}
+              onChange={e => set('skills', e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Category">
+            <select
+              value={form.category}
+              onChange={e => set('category', e.target.value)}
+              className={inputCls}>
+              {CATEGORIES.map(c => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Live URL">
+            <input
+              type="text"
+              value={form.liveLink}
+              onChange={e => set('liveLink', e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Source URL">
+            <input
+              type="text"
+              value={form.sourceLink}
+              onChange={e => set('sourceLink', e.target.value)}
+              className={inputCls}
+            />
+          </Field>
+
+          <div className="flex items-center gap-3 pt-2">
+            <Toggle checked={form.featured} onChange={v => set('featured', v)} />
+            <span className="text-sm text-ash font-semibold">
+              {form.featured ? 'Featured on homepage' : 'Not featured'}
+            </span>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-5">
-            <Field label="Slug">
-              <p className="px-3 py-2.5 text-sm font-mono text-ash/60 border border-white/[0.04] bg-dark/50">
-                {slug}
-              </p>
-            </Field>
-            <Field label="Cover Image URL">
-              <input
-                type="text"
-                value={form.image}
-                onChange={e => set('image', e.target.value)}
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Skills (comma separated)">
-              <input
-                type="text"
-                value={form.skills}
-                onChange={e => set('skills', e.target.value)}
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Category">
-              <select
-                value={form.category}
-                onChange={e => set('category', e.target.value)}
-                className={inputCls}>
-                {CATEGORIES.map(c => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Live URL">
-              <input
-                type="text"
-                value={form.liveLink}
-                onChange={e => set('liveLink', e.target.value)}
-                className={inputCls}
-              />
-            </Field>
-            <Field label="Source URL">
-              <input
-                type="text"
-                value={form.sourceLink}
-                onChange={e => set('sourceLink', e.target.value)}
-                className={inputCls}
-              />
-            </Field>
-
-            <div className="flex items-center gap-3 pt-2">
-              <Toggle checked={form.featured} onChange={v => set('featured', v)} />
-              <span className="text-sm text-ash font-semibold">
-                {form.featured ? 'Featured on homepage' : 'Not featured'}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 pt-2">
-              <Toggle checked={form.published} onChange={v => set('published', v)} />
-              <span className="text-sm text-ash font-semibold">
-                {form.published ? 'Published' : 'Draft'}
-              </span>
-            </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-red text-light text-sm font-semibold font-montserrat hover:opacity-90 transition-all disabled:opacity-50 mt-2">
-              <SaveIcon className="size-4" />
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+          <div className="flex items-center gap-3 pt-2">
+            <Toggle checked={form.published} onChange={v => set('published', v)} />
+            <span className="text-sm text-ash font-semibold">
+              {form.published ? 'Published' : 'Draft'}
+            </span>
           </div>
-        </form>
-      </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-red text-light text-sm font-semibold font-montserrat hover:opacity-90 transition-all disabled:opacity-50 mt-2">
+            <SaveIcon className="size-4" />
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

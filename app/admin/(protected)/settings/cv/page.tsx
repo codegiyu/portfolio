@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { AdminHeader } from '@/components/admin/AdminHeader';
 import { ChevronLeftIcon, SaveIcon, UploadIcon, ExternalLinkIcon } from 'lucide-react';
 import type { AboutSettings } from '@/lib/types/general';
 
@@ -74,89 +73,85 @@ export default function CvSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-darkBg text-light">
-      <AdminHeader />
-
-      <div className="max-w-2xl mx-auto px-6 py-10">
-        <div className="flex items-center gap-3 mb-8">
-          <Link href="/admin/settings" className="text-ash hover:text-red transition-colors">
-            <ChevronLeftIcon className="size-5" />
-          </Link>
-          <div>
-            <h2 className="font-montserrat font-black text-2xl text-light">CV</h2>
-            <p className="text-ash text-sm mt-0.5">Link or file shown by the Download CV button</p>
-          </div>
+    <div className="max-w-2xl mx-auto px-6 py-10">
+      <div className="flex items-center gap-3 mb-8">
+        <Link href="/admin/settings" className="text-ash hover:text-red transition-colors">
+          <ChevronLeftIcon className="size-5" />
+        </Link>
+        <div>
+          <h2 className="font-montserrat font-black text-2xl text-light">CV</h2>
+          <p className="text-ash text-sm mt-0.5">Link or file shown by the Download CV button</p>
         </div>
-
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <div className="w-6 h-6 border-2 border-white/10 border-t-red rounded-full animate-spin" />
-          </div>
-        ) : (
-          <form onSubmit={handleSave} className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-ash/50">
-                CV URL
-              </label>
-              <p className="text-xs text-ash/40">
-                Paste a Google Drive link, a direct PDF URL, or upload a file below.
-              </p>
-              <input
-                className={INPUT}
-                value={cvUrl}
-                onChange={e => setCvUrl(e.target.value)}
-                placeholder="https://..."
-              />
-            </div>
-
-            {cvUrl && (
-              <a
-                href={cvUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-ash hover:text-red transition-colors self-start">
-                <ExternalLinkIcon className="size-3.5" />
-                Preview current CV
-              </a>
-            )}
-
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-ash/50">
-                Upload to R2
-              </label>
-              <p className="text-xs text-ash/40">
-                Upload a PDF to Cloudflare R2. The public URL will be set automatically.
-              </p>
-              <label className="flex items-center gap-2 px-4 py-3 border border-dashed border-white/10 hover:border-red/40 transition-colors cursor-pointer text-sm text-ash hover:text-red w-fit">
-                <UploadIcon className="size-4" />
-                {uploading ? 'Uploading…' : 'Choose PDF…'}
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  className="hidden"
-                  onChange={handleUpload}
-                  disabled={uploading}
-                />
-              </label>
-            </div>
-
-            {message && (
-              <p
-                className={`text-sm font-medium ${message.type === 'ok' ? 'text-green-400' : 'text-red'}`}>
-                {message.text}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={saving || uploading}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-red text-light text-sm font-semibold font-montserrat hover:opacity-90 transition-all disabled:opacity-50 self-start">
-              <SaveIcon className="size-4" />
-              {saving ? 'Saving…' : 'Save CV URL'}
-            </button>
-          </form>
-        )}
       </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="w-6 h-6 border-2 border-white/10 border-t-red rounded-full animate-spin" />
+        </div>
+      ) : (
+        <form onSubmit={handleSave} className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-ash/50">
+              CV URL
+            </label>
+            <p className="text-xs text-ash/40">
+              Paste a Google Drive link, a direct PDF URL, or upload a file below.
+            </p>
+            <input
+              className={INPUT}
+              value={cvUrl}
+              onChange={e => setCvUrl(e.target.value)}
+              placeholder="https://..."
+            />
+          </div>
+
+          {cvUrl && (
+            <a
+              href={cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-ash hover:text-red transition-colors self-start">
+              <ExternalLinkIcon className="size-3.5" />
+              Preview current CV
+            </a>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-ash/50">
+              Upload to R2
+            </label>
+            <p className="text-xs text-ash/40">
+              Upload a PDF to Cloudflare R2. The public URL will be set automatically.
+            </p>
+            <label className="flex items-center gap-2 px-4 py-3 border border-dashed border-white/10 hover:border-red/40 transition-colors cursor-pointer text-sm text-ash hover:text-red w-fit">
+              <UploadIcon className="size-4" />
+              {uploading ? 'Uploading…' : 'Choose PDF…'}
+              <input
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={handleUpload}
+                disabled={uploading}
+              />
+            </label>
+          </div>
+
+          {message && (
+            <p
+              className={`text-sm font-medium ${message.type === 'ok' ? 'text-green-400' : 'text-red'}`}>
+              {message.text}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={saving || uploading}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-red text-light text-sm font-semibold font-montserrat hover:opacity-90 transition-all disabled:opacity-50 self-start">
+            <SaveIcon className="size-4" />
+            {saving ? 'Saving…' : 'Save CV URL'}
+          </button>
+        </form>
+      )}
     </div>
   );
 }

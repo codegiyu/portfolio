@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AdminHeader } from '@/components/admin/AdminHeader';
 import type { AnalyticsBucket, AnalyticsSummary } from '@/lib/types/general';
 import { DownloadIcon, EyeIcon, GlobeIcon } from 'lucide-react';
 
@@ -73,69 +72,66 @@ export default function AdminAnalyticsPage() {
   }, [days]);
 
   return (
-    <div className="min-h-screen bg-darkBg text-light">
-      <AdminHeader />
-      <main className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="font-montserrat font-black text-2xl text-light">Analytics</h1>
-            <p className="text-ash text-sm mt-1">Aggregate data only · no raw visitor records</p>
-          </div>
-          <div
-            className="flex items-center border border-white/[0.06]"
-            role="group"
-            aria-label="Analytics period">
-            {[7, 30, 90].map(value => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={days === value}
-                onClick={() => {
-                  setDays(value as Days);
-                  setLoading(true);
-                  setError('');
-                }}
-                className={`px-3 py-1.5 text-xs font-semibold font-montserrat transition-colors ${
-                  days === value ? 'bg-white/[0.08] text-light' : 'text-ash hover:text-light'
-                }`}>
-                {value} days
-              </button>
-            ))}
-          </div>
+    <main className="max-w-6xl mx-auto px-6 py-10">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="font-montserrat font-black text-2xl text-light">Analytics</h1>
+          <p className="text-ash text-sm mt-1">Aggregate data only · no raw visitor records</p>
         </div>
+        <div
+          className="flex items-center border border-white/[0.06]"
+          role="group"
+          aria-label="Analytics period">
+          {[7, 30, 90].map(value => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={days === value}
+              onClick={() => {
+                setDays(value as Days);
+                setLoading(true);
+                setError('');
+              }}
+              className={`px-3 py-1.5 text-xs font-semibold font-montserrat transition-colors ${
+                days === value ? 'bg-white/[0.08] text-light' : 'text-ash hover:text-light'
+              }`}>
+              {value} days
+            </button>
+          ))}
+        </div>
+      </div>
 
-        {loading ? (
-          <div className="flex justify-center py-24" role="status" aria-live="polite">
-            <div className="w-8 h-8 border-2 border-white/10 border-t-red rounded-full animate-spin" />
-            <span className="sr-only">Loading analytics</span>
+      {loading ? (
+        <div className="flex justify-center py-24" role="status" aria-live="polite">
+          <div className="w-8 h-8 border-2 border-white/10 border-t-red rounded-full animate-spin" />
+          <span className="sr-only">Loading analytics</span>
+        </div>
+      ) : error ? (
+        <div role="alert" className="border border-red/40 bg-red/10 p-5 text-red">
+          {error}
+        </div>
+      ) : data ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <StatCard Icon={EyeIcon} label="Page Views" value={data.pageViews} />
+            <StatCard Icon={DownloadIcon} label="CV Downloads" value={data.cvDownloads} />
+            <StatCard
+              Icon={GlobeIcon}
+              label="Top Country"
+              value={data.topCountries[0]?.label ?? '—'}
+            />
           </div>
-        ) : error ? (
-          <div role="alert" className="border border-red/40 bg-red/10 p-5 text-red">
-            {error}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <MiniList title="Top Pages" rows={data.topPages} />
+            <MiniList title="Referrers" rows={data.topReferrers} />
+            <MiniList title="Countries" rows={data.topCountries} />
+            <MiniList title="Browsers" rows={data.browsers} />
+            <MiniList title="Devices" rows={data.devices} />
           </div>
-        ) : data ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <StatCard Icon={EyeIcon} label="Page Views" value={data.pageViews} />
-              <StatCard Icon={DownloadIcon} label="CV Downloads" value={data.cvDownloads} />
-              <StatCard
-                Icon={GlobeIcon}
-                label="Top Country"
-                value={data.topCountries[0]?.label ?? '—'}
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <MiniList title="Top Pages" rows={data.topPages} />
-              <MiniList title="Referrers" rows={data.topReferrers} />
-              <MiniList title="Countries" rows={data.topCountries} />
-              <MiniList title="Browsers" rows={data.browsers} />
-              <MiniList title="Devices" rows={data.devices} />
-            </div>
-          </>
-        ) : (
-          <p className="py-24 text-center text-ash">No analytics data yet.</p>
-        )}
-      </main>
-    </div>
+        </>
+      ) : (
+        <p className="py-24 text-center text-ash">No analytics data yet.</p>
+      )}
+    </main>
   );
 }
