@@ -54,10 +54,8 @@ export const WorksSection = ({ projects }: WorksSectionProps) => {
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <a
-      href={project.liveLink || `/projects/${project.slug}`}
-      target={project.liveLink ? '_blank' : undefined}
-      rel={project.liveLink ? 'noopener noreferrer' : undefined}
+    <Link
+      href={`/projects/${project.slug}`}
       className="group flex flex-col bg-dark border border-white/[0.06] overflow-hidden hover:border-red/40 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
       {/* Image */}
       <div
@@ -88,10 +86,17 @@ function ProjectCard({ project }: { project: Project }) {
             ))}
           </div>
           {project.liveLink && (
-            <ExternalLinkIcon className="size-3.5 text-ash/30 group-hover:text-red transition-colors flex-shrink-0" />
+            <a
+              href={project.liveLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="text-ash/30 hover:text-red transition-colors flex-shrink-0">
+              <ExternalLinkIcon className="size-3.5" />
+            </a>
           )}
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
