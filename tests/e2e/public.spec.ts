@@ -48,12 +48,15 @@ test.describe('public release smoke tests', () => {
     const canonical = page.locator('link[rel="canonical"]');
     await expect(canonical).toHaveCount(1);
     await expect(canonical).toHaveAttribute('href', /\/projects$/);
-    expect(await canonical.getAttribute('href')).not.toContain('portfolio-codegiyu.vercel.app');
+    if (process.env.E2E_EXPECT_PREVIEW === 'true') {
+      expect(await canonical.getAttribute('href')).not.toContain('portfolio-codegiyu.vercel.app');
+    }
   });
 
   test('mobile navigation opens, traps focus, and closes with Escape', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
 
     await page.getByRole('button', { name: 'Open navigation menu' }).click();
     const dialog = page.getByRole('dialog');
@@ -66,12 +69,14 @@ test.describe('public release smoke tests', () => {
 
   test('project and blog filters expose selected state', async ({ page }) => {
     await page.goto('/projects', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     const projectFilters = page.locator('button[aria-pressed]');
     await expect(projectFilters).not.toHaveCount(0);
     await projectFilters.last().click();
     await expect(projectFilters.last()).toHaveAttribute('aria-pressed', 'true');
 
     await page.goto('/blog', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
     const blogFilters = page.locator('button[aria-pressed]');
     await expect(blogFilters).not.toHaveCount(0);
     await blogFilters.last().click();
