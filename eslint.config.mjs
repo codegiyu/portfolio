@@ -11,7 +11,7 @@ export default defineConfig(
   {
     plugins: { react },
     rules: {
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'react/no-unescaped-entities': 'error',
     },
   },
