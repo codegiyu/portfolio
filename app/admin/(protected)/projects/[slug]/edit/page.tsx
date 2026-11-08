@@ -79,7 +79,7 @@ export default function EditProjectPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      fd.append('folder', 'projects');
+      fd.append('folder', 'project');
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
       if (!res.ok) throw new Error('Upload failed');
       const { url } = await res.json();
