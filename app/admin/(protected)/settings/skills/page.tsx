@@ -2,8 +2,27 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeftIcon, SaveIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import { ChevronLeftIcon, SaveIcon, PlusIcon, TrashIcon, GripVerticalIcon } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { SkillsSettings, SpecialtyCard } from '@/lib/types/general';
+
+type SortableSpecialty = SpecialtyCard & { id: string };
 
 const ALL_KNOWN_SKILLS = [
   'HTML5',
@@ -27,7 +46,7 @@ const ALL_KNOWN_SKILLS = [
 
 export default function SkillsSettingsPage() {
   const [skills, setSkills] = useState<SkillsSettings>({ active: [], icons: {} });
-  const [specialties, setSpecialties] = useState<SpecialtyCard[]>([]);
+  const [specialties, setSpecialties] = useState<SortableSpecialty[]>([]);
   const [newSkill, setNewSkill] = useState('');
   const [loading, setLoading] = useState(true);
   const [savingSkills, setSavingSkills] = useState(false);
@@ -37,6 +56,11 @@ export default function SkillsSettingsPage() {
     specialties?: number;
   }>({});
   const [msg, setMsg] = useState<Record<string, { type: 'ok' | 'err'; text: string }>>({});
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   useEffect(() => {
     Promise.all([
@@ -51,7 +75,8 @@ export default function SkillsSettingsPage() {
     ])
       .then(([s, sp]) => {
         setSkills(s.value as SkillsSettings);
-        setSpecialties((sp.value as { cards: SpecialtyCard[] }).cards ?? []);
+        const cards = (sp.value as { cards: SpecialtyCard[] }).cards ?? [];
+        setSpecialties(cards.map((c, i) => ({ ...c, id: String(i) })));
         setVersions({ skills: s.version, specialties: sp.version });
         setLoading(false);
       })
@@ -107,21 +132,34 @@ export default function SkillsSettingsPage() {
   }
 
   function addSpecialty() {
-    setSpecialties(prev => [...prev, { label: '', description: '' }]);
+    setSpecialties(prev => [...prev, { id: String(Date.now()), label: '', description: '' }]);
   }
 
   function removeSpecialty(i: number) {
     setSpecialties(prev => prev.filter((_, idx) => idx !== i));
   }
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setSpecialties(prev => {
+        const oldIndex = prev.findIndex(item => item.id === active.id);
+        const newIndex = prev.findIndex(item => item.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }
+  }
+
   async function saveSpecialties(e: React.FormEvent) {
     e.preventDefault();
     setSavingSpecialties(true);
     try {
+      // Strip internal IDs before sending to the API
+      const cards: SpecialtyCard[] = specialties.map(({ id: _id, ...rest }) => rest);
       const res = await fetch('/api/settings/specialties', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cards: specialties, expectedVersion: versions.specialties }),
+        body: JSON.stringify({ cards, expectedVersion: versions.specialties }),
       });
       if (!res.ok) throw new Error();
       const data = await res.json();
@@ -235,31 +273,25 @@ export default function SkillsSettingsPage() {
           <form onSubmit={saveSpecialties} className="flex flex-col gap-4">
             <SectionHeader label="Specialty cards (Mobile / Backend / Web)" />
 
-            {specialties.map((card, i) => (
-              <div key={i} className="border border-white/[0.06] p-4 bg-dark flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <input
-                    className={INPUT}
-                    placeholder="Label (e.g. Mobile)"
-                    value={card.label}
-                    onChange={e => updateSpecialty(i, 'label', e.target.value)}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={specialties.map(c => c.id)}
+                strategy={verticalListSortingStrategy}>
+                {specialties.map((card, i) => (
+                  <SortableSpecialtyCard
+                    key={card.id}
+                    id={card.id}
+                    card={card}
+                    index={i}
+                    onUpdate={updateSpecialty}
+                    onRemove={removeSpecialty}
                   />
-                  <button
-                    type="button"
-                    onClick={() => removeSpecialty(i)}
-                    className="ml-3 text-ash/40 hover:text-red transition-colors flex-shrink-0">
-                    <TrashIcon className="size-4" />
-                  </button>
-                </div>
-                <textarea
-                  rows={2}
-                  className={INPUT + ' resize-none'}
-                  placeholder="Description…"
-                  value={card.description}
-                  onChange={e => updateSpecialty(i, 'description', e.target.value)}
-                />
-              </div>
-            ))}
+                ))}
+              </SortableContext>
+            </DndContext>
 
             <button
               type="button"
@@ -279,6 +311,65 @@ export default function SkillsSettingsPage() {
           </form>
         </div>
       )}
+    </div>
+  );
+}
+
+function SortableSpecialtyCard({
+  id,
+  card,
+  index,
+  onUpdate,
+  onRemove,
+}: {
+  id: string;
+  card: SortableSpecialty;
+  index: number;
+  onUpdate: (i: number, key: keyof SpecialtyCard, value: string) => void;
+  onRemove: (i: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="border border-white/[0.06] p-4 bg-dark flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="text-ash/30 hover:text-ash/60 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
+          {...attributes}
+          {...listeners}>
+          <GripVerticalIcon className="size-4" />
+        </button>
+        <input
+          className={INPUT + ' flex-1'}
+          placeholder="Label (e.g. Mobile)"
+          value={card.label}
+          onChange={e => onUpdate(index, 'label', e.target.value)}
+        />
+        <button
+          type="button"
+          onClick={() => onRemove(index)}
+          className="text-ash/40 hover:text-red transition-colors flex-shrink-0">
+          <TrashIcon className="size-4" />
+        </button>
+      </div>
+      <textarea
+        rows={2}
+        className={INPUT + ' resize-none'}
+        placeholder="Description…"
+        value={card.description}
+        onChange={e => onUpdate(index, 'description', e.target.value)}
+      />
     </div>
   );
 }
