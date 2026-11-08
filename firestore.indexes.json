@@ -26,5 +26,24 @@
       ]
     }
   ],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    {
+      "collectionGroup": "authMagicLinks",
+      "fieldPath": "expiresAt",
+      "indexes": [],
+      "ttlConfig": {}
+    },
+    {
+      "collectionGroup": "authSessions",
+      "fieldPath": "expiresAt",
+      "indexes": [],
+      "ttlConfig": {}
+    },
+    {
+      "collectionGroup": "authRateLimits",
+      "fieldPath": "expiresAt",
+      "indexes": [],
+      "ttlConfig": {}
+    }
+  ]
 }
