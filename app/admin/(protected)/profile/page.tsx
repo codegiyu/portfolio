@@ -8,6 +8,7 @@ import {
   PlusIcon,
   TrashIcon,
   GripVerticalIcon,
+  ExternalLinkIcon,
 } from 'lucide-react';
 import type { AboutSettings, SocialLink } from '@/lib/types/general';
 
@@ -28,6 +29,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [versions, setVersions] = useState<{ about?: number; social?: number }>({});
   const [uploading, setUploading] = useState(false);
+  const [uploadingCv, setUploadingCv] = useState(false);
   const [savingAbout, setSavingAbout] = useState(false);
   const [savingSocial, setSavingSocial] = useState(false);
   const [msg, setMsg] = useState<Record<string, { type: 'ok' | 'err'; text: string }>>({});
@@ -67,6 +69,27 @@ export default function ProfilePage() {
       setMsg(m => ({ ...m, about: { type: 'err', text: 'Image upload failed.' } }));
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handleCvUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCv(true);
+    setMsg(m => ({ ...m, about: { type: 'ok', text: 'Uploading CV…' } }));
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder', 'cv');
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('Upload failed');
+      const { url } = await res.json();
+      setAboutField('cvUrl', url);
+      setMsg(m => ({ ...m, about: { type: 'ok', text: 'CV uploaded — save to apply.' } }));
+    } catch {
+      setMsg(m => ({ ...m, about: { type: 'err', text: 'CV upload failed.' } }));
+    } finally {
+      setUploadingCv(false);
     }
   }
 
@@ -215,13 +238,36 @@ export default function ProfilePage() {
           />
         </Field>
 
-        <Field label="CV URL" hint="Google Drive or R2 public link">
-          <input
-            className={INPUT}
-            value={about.cvUrl}
-            onChange={e => setAboutField('cvUrl', e.target.value)}
-            placeholder="https://..."
-          />
+        <Field label="CV URL" hint="Paste a link or upload a PDF to R2">
+          <div className="flex items-center gap-2">
+            <input
+              className={INPUT + ' flex-1'}
+              value={about.cvUrl}
+              onChange={e => setAboutField('cvUrl', e.target.value)}
+              placeholder="https://..."
+            />
+            <label className="flex items-center gap-1.5 flex-shrink-0 px-3 py-2.5 border border-white/10 text-ash hover:border-red/50 hover:text-red transition-colors text-xs font-semibold cursor-pointer">
+              <UploadIcon className="size-3.5" />
+              {uploadingCv ? 'Uploading…' : 'Upload PDF'}
+              <input
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={handleCvUpload}
+                disabled={uploadingCv}
+              />
+            </label>
+          </div>
+          {about.cvUrl && (
+            <a
+              href={about.cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-ash hover:text-red transition-colors mt-1.5">
+              <ExternalLinkIcon className="size-3" />
+              Preview CV
+            </a>
+          )}
         </Field>
 
         {msg.about && (
@@ -233,7 +279,7 @@ export default function ProfilePage() {
 
         <button
           type="submit"
-          disabled={savingAbout || uploading}
+          disabled={savingAbout || uploading || uploadingCv}
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-red text-light text-sm font-semibold font-montserrat hover:opacity-90 transition-all disabled:opacity-50 self-start">
           <SaveIcon className="size-4" />
           {savingAbout ? 'Saving…' : 'Save Profile'}
