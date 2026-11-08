@@ -1,19 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { Logo } from '@/components/atoms/Logo';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from '@/components/icons';
 import { XIcon } from 'lucide-react';
 
-const navBarLinks: NavLinkProps[] = [
-  { href: '/#about', text: 'About Me', targetDescriptor: '#about' },
-  { href: '/#services', text: 'Services', targetDescriptor: '#services' },
-  { href: '/#works', text: 'Works', targetDescriptor: '#works' },
-  { href: '/#contact', text: 'Contact Me', targetDescriptor: '#contact' },
+interface NavItem {
+  href: string;
+  text: string;
+  anchor?: string;
+}
+
+const navItems: NavItem[] = [
+  { href: '/#about', text: 'About', anchor: '#about' },
+  { href: '/projects', text: 'Projects' },
+  { href: '/blog', text: 'Blog' },
+  { href: '/#contact', text: 'Contact', anchor: '#contact' },
 ];
-const _404NavbarLinks: NavLinkProps[] = [{ href: '/', text: 'Home' }];
 
 interface HeaderProps {
   hideNav?: boolean;
@@ -21,113 +28,157 @@ interface HeaderProps {
 
 const Header = ({ hideNav }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
-    <header className="w-full bg-darkBg sticky top-0 z-50">
-      <section
-        className={`w-full container flex justify-between items-center font-montserrat py-4 z-10`}>
-        <div>
+    <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-red focus:px-4 focus:py-3 focus:text-light">
+        Skip to main content
+      </a>
+      <header className="w-full bg-darkBg/95 backdrop-blur-sm sticky top-0 z-50 border-b border-white/[0.06]">
+        <section className="w-full container flex justify-between items-center font-montserrat py-4">
           <Logo />
-        </div>
 
-        <Nav links={hideNav ? _404NavbarLinks : navBarLinks} />
+          {!hideNav && (
+            <>
+              <nav aria-label="Primary" className="hidden lg:flex items-center gap-8">
+                {navItems.map(item => (
+                  <NavLink key={item.href} item={item} pathname={pathname} />
+                ))}
+              </nav>
 
-        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-          <SheetTrigger className="w-fit lg:hidden outline-none" asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden hover:bg-transparent"
-              onClick={() => setMenuOpen(prev => !prev)}>
-              <i className="text-2xl text-white">
-                <Menu />
-              </i>
-            </Button>
-          </SheetTrigger>
-          <SheetContent
-            side="left"
-            className="w-full h-screen grid grid-cols-[auto_1fr] gap-0 p-0 border-none bg-transparent"
-            aria-describedby={undefined}>
-            <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-            <section className="w-[250px] h-full flex-none bg-darkBg py-6 px-5 md:py-10">
-              <div className="h-full flex flex-col justify-between">
-                <div className="grid gap-20">
-                  <div className="center-container w-full flex items-center justify-between">
-                    <Logo />
-                    <Button variant="ghost" className="p-2" onClick={() => setMenuOpen(false)}>
-                      <XIcon className="size-5 text-red" />
-                    </Button>
-                  </div>
-                  <nav className="">
-                    <ul className="grid gap-8 text-white">
-                      {(hideNav ? _404NavbarLinks : navBarLinks).map((item, idx) => (
-                        <NavLink key={idx} {...item} afterClick={() => setMenuOpen(false)} />
-                      ))}
-                    </ul>
-                  </nav>
-                </div>
-                <div className="center-container">
-                  <p className="text-sm text-gray2">&copy; Copyright {new Date().getFullYear()}</p>
-                </div>
-              </div>
-            </section>
-            <SheetClose className="h-full w-full flex-1"></SheetClose>
-          </SheetContent>
-        </Sheet>
-      </section>
-    </header>
+              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetTrigger className="w-fit lg:hidden outline-none" asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Open navigation menu"
+                    className="lg:hidden hover:bg-transparent">
+                    <i className="text-2xl text-white">
+                      <Menu />
+                    </i>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="left"
+                  className="w-full h-screen grid grid-cols-[auto_1fr] gap-0 p-0 border-none bg-transparent"
+                  aria-describedby={undefined}>
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                  <section className="w-[260px] h-full flex-none bg-darkBg border-r border-white/[0.06] py-6 px-5 md:py-10">
+                    <div className="h-full flex flex-col justify-between">
+                      <div className="grid gap-16">
+                        <div className="flex items-center justify-between">
+                          <Logo />
+                          <Button
+                            variant="ghost"
+                            className="p-2"
+                            aria-label="Close navigation menu"
+                            onClick={() => setMenuOpen(false)}>
+                            <XIcon className="size-5 text-red" />
+                          </Button>
+                        </div>
+                        <nav aria-label="Mobile primary">
+                          <ul className="grid gap-6">
+                            {navItems.map(item => (
+                              <li key={item.href}>
+                                <MobileNavLink
+                                  item={item}
+                                  pathname={pathname}
+                                  onClose={() => setMenuOpen(false)}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        </nav>
+                      </div>
+                      <p className="text-sm text-ash">&copy; {new Date().getFullYear()} Codegiyu</p>
+                    </div>
+                  </section>
+                  <SheetClose className="h-full w-full flex-1" />
+                </SheetContent>
+              </Sheet>
+            </>
+          )}
+
+          {hideNav && (
+            <Link
+              href="/"
+              className="text-sm text-ash hover:text-red transition-colors font-semibold">
+              ← Home
+            </Link>
+          )}
+        </section>
+      </header>
+    </>
   );
 };
 
-interface NavProps {
-  links: NavLinkProps[];
-  isMobileNav?: boolean;
+function isActive(item: NavItem, pathname: string): boolean {
+  if (item.href === '/projects')
+    return pathname === '/projects' || pathname.startsWith('/projects/');
+  if (item.href === '/blog') return pathname === '/blog' || pathname.startsWith('/blog/');
+  return false;
 }
 
-function Nav({ links, isMobileNav = false }: NavProps) {
+function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
+  const active = isActive(item, pathname);
+
+  const handleAnchorClick = (e: React.MouseEvent, anchor: string) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      document.querySelector(anchor)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <nav
-      className={`${isMobileNav ? '' : 'hidden lg:block'} font-semibold text-lg leading-[100%] text-ash`}>
-      <ul className={`${isMobileNav ? 'grid' : 'flex gap-10'}`}>
-        {links.map((item, idx) => (
-          <NavLink key={idx} {...item} />
-        ))}
-      </ul>
-    </nav>
+    <Link
+      href={item.href}
+      onClick={item.anchor ? e => handleAnchorClick(e, item.anchor!) : undefined}
+      className={`text-sm font-semibold transition-colors hover:text-red relative group ${
+        active ? 'text-red' : 'text-ash'
+      }`}>
+      {item.text}
+      <span
+        className={`absolute -bottom-1 left-0 h-px bg-red transition-all duration-300 ${
+          active ? 'w-full' : 'w-0 group-hover:w-full'
+        }`}
+      />
+    </Link>
   );
 }
 
-interface NavLinkProps {
-  href: string;
-  text: string;
-  targetDescriptor?: string;
-  afterClick?: () => void;
-}
+function MobileNavLink({
+  item,
+  pathname,
+  onClose,
+}: {
+  item: NavItem;
+  pathname: string;
+  onClose: () => void;
+}) {
+  const active = isActive(item, pathname);
 
-function NavLink({ targetDescriptor, href, text, afterClick }: NavLinkProps) {
+  const handleClick = (e: React.MouseEvent) => {
+    onClose();
+    if (item.anchor && pathname === '/') {
+      e.preventDefault();
+      setTimeout(() => {
+        document.querySelector(item.anchor!)?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+  };
+
   return (
-    <li>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="hover:text-red"
-        {...(targetDescriptor
-          ? {
-              onClick: () => {
-                const element = document.querySelector(targetDescriptor);
-                afterClick?.();
-
-                if (!element) return;
-
-                element.scrollIntoView({ behavior: 'smooth' });
-              },
-            }
-          : {
-              href,
-            })}>
-        {text}
-      </Button>
-    </li>
+    <Link
+      href={item.href}
+      onClick={handleClick}
+      className={`text-lg font-semibold transition-colors hover:text-red ${
+        active ? 'text-red' : 'text-light'
+      }`}>
+      {item.text}
+    </Link>
   );
 }
 

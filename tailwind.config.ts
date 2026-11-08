@@ -38,17 +38,17 @@ const config = {
         dark: '#1E1F23',
         darkOpaque: '#00000099',
         light: '#fafafa',
-        red: '#C81313',
-        ash: '#666874',
+        red: '#EF4444',
+        ash: '#D8D9DF',
         darkAsh: '#66687442',
       },
       boxShadow: {
         profile: '0 4px 20px rgba(255, 252, 252, 0.25)',
       },
       fontFamily: {
-        montserrat: ['Montserrat', 'sans-serif'],
-        poppins: ['Poppins', 'sans-serif'],
-        lobster: ['Lobster', 'cursive'],
+        montserrat: ['var(--font-montserrat)', 'sans-serif'],
+        poppins: ['var(--font-poppins)', 'sans-serif'],
+        lobster: ['var(--font-lobster)', 'cursive'],
       },
       animation: {
         rebound: 'spring 10s ease-in-out infinite',

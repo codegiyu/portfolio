@@ -53,7 +53,7 @@ export const useForm = <TSchema extends ZodType<any>>({
 
   const validateForm = (obj?: Partial<FormValues>) => {
     const errors =
-      formSchema.safeParse({ ...formValues, ...obj }).error?.formErrors.fieldErrors ?? {};
+      formSchema.safeParse({ ...formValues, ...obj }).error?.flatten().fieldErrors ?? {};
 
     setFormErrors(() => {
       return errors as FormErrors;
@@ -125,9 +125,14 @@ export const useForm = <TSchema extends ZodType<any>>({
 
     setLoading(true);
 
-    const wasSubmittedSuccessfully = await onSubmit(formValues);
-
-    setSubmitted(wasSubmittedSuccessfully);
+    try {
+      const wasSubmittedSuccessfully = await onSubmit(formValues);
+      setSubmitted(wasSubmittedSuccessfully);
+    } catch {
+      setSubmitted(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {

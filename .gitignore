@@ -7,6 +7,9 @@
 
 # testing
 /coverage
+/output/
+/.lighthouseci/
+/.tmp/
 
 # next.js
 /.next/
@@ -14,10 +17,15 @@
 
 # production
 /build
+/backups/
 
 # misc
 .DS_Store
 *.pem
+
+# Firebase service account keys — never commit these
+*-adminsdk-*.json
+firebase-adminsdk*.json
 
 # debug
 npm-debug.log*

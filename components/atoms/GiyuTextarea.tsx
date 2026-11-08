@@ -15,6 +15,7 @@ const GiyuTextarea = forwardRef<HTMLTextAreaElement, GiyuTextareaProps>(
     { className, label = '', labelClassName, wrapClassName, subtext = '', errors = [], ...props },
     ref
   ) => {
+    const errorId = props.id ? `${props.id}-error` : props.name ? `${props.name}-error` : undefined;
     return (
       <label className={cn('w-full grid gap-2.5', wrapClassName)}>
         <div className="flex items-center justify-between">
@@ -37,9 +38,17 @@ const GiyuTextarea = forwardRef<HTMLTextAreaElement, GiyuTextareaProps>(
             </span>
           )}
         </div>
-        <Textarea className={className} ref={ref} {...props} />
+        <Textarea
+          className={className}
+          ref={ref}
+          aria-invalid={errors.length > 0 || undefined}
+          aria-describedby={errors.length > 0 ? errorId : undefined}
+          {...props}
+        />
         {errors.length > 0 && (
-          <p className={cn('text-[0.875rem] font-medium text-red')}>{errors[0]}</p>
+          <p id={errorId} role="alert" className={cn('text-[0.875rem] font-medium text-red')}>
+            {errors[0]}
+          </p>
         )}
       </label>
     );
