@@ -108,13 +108,15 @@ export function AdminLoginForm() {
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
 
-        {error && (
-          <p className="text-sm text-red text-center">{error}</p>
-        )}
+        {error && <p className="text-sm text-red text-center">{error}</p>}
 
         <button
           type="button"
-          onClick={() => { setStep('email'); setError(''); setTokenInput(''); }}
+          onClick={() => {
+            setStep('email');
+            setError('');
+            setTokenInput('');
+          }}
           className="w-full text-ash text-sm hover:text-light transition-colors">
           ← Send a new link
         </button>
@@ -146,9 +148,7 @@ export function AdminLoginForm() {
         {loading ? 'Sending link…' : 'Send Magic Link'}
       </button>
 
-      {error && (
-        <p className="text-sm text-red text-center">{error}</p>
-      )}
+      {error && <p className="text-sm text-red text-center">{error}</p>}
 
       <p className="text-center text-ash text-sm">
         You&apos;ll receive a one-time link via email valid for 15 minutes.

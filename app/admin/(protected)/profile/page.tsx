@@ -296,9 +296,7 @@ export default function ProfilePage() {
         </div>
 
         {socialLinks.map((link, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-2 border border-white/[0.06] p-3 bg-dark">
+          <div key={i} className="flex items-start gap-2 border border-white/[0.06] p-3 bg-dark">
             <GripVerticalIcon className="size-4 text-ash/20 mt-2.5 flex-shrink-0" />
             <div className="flex-1 grid grid-cols-2 gap-2">
               <select

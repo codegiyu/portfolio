@@ -243,9 +243,7 @@ export default function SkillsSettingsPage() {
                 </p>
                 {skills.active.map(name => (
                   <div key={name} className="flex items-center gap-2">
-                    <span className="text-xs text-ash/60 w-28 flex-shrink-0 font-mono">
-                      {name}
-                    </span>
+                    <span className="text-xs text-ash/60 w-28 flex-shrink-0 font-mono">{name}</span>
                     <input
                       className={INPUT + ' flex-1'}
                       placeholder="/images/skills/..."

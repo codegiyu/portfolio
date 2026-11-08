@@ -234,9 +234,7 @@ export default function EditProjectPage() {
                   disabled={uploading}
                 />
               </label>
-              {uploadMsg && (
-                <p className="text-xs text-ash/60 mt-1.5">{uploadMsg}</p>
-              )}
+              {uploadMsg && <p className="text-xs text-ash/60 mt-1.5">{uploadMsg}</p>}
             </Field>
             <Field label="Skills (comma separated)">
               <input
