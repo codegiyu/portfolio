@@ -20,6 +20,8 @@ const ALL_KNOWN_SKILLS = [
   'Node.js',
   'Express JS',
   'Mongo DB',
+  'PostgreSQL',
+  'Docker',
   'PHP',
   'MySQL',
 ];

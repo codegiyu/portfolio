@@ -47,6 +47,8 @@ export const skillIcons = {
   'Node.js': '/images/skills/nodejs.svg',
   'Express JS': '/images/skills/express.svg',
   'Mongo DB': '/images/skills/mongodb.svg',
+  PostgreSQL: '/images/skills/postgresql.svg',
+  Docker: '/images/skills/docker.svg',
   PHP: '/images/skills/php.svg',
   MySQL: '/images/skills/mysql.svg',
 };
@@ -67,6 +69,8 @@ export const SKILLS: { skill: Skill }[] = [
   { skill: 'Node.js' },
   { skill: 'Express JS' },
   { skill: 'Mongo DB' },
+  { skill: 'PostgreSQL' },
+  { skill: 'Docker' },
   // { skill: "PHP" },
   // { skill: "MySQL" },
 ];
