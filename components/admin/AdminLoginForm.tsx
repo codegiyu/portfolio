@@ -90,14 +90,14 @@ export function AdminLoginForm() {
           <label htmlFor="token" className="block text-sm font-semibold text-light mb-2">
             Sign-in link or token
           </label>
-          <textarea
+          <input
             id="token"
-            rows={3}
+            type="text"
             value={tokenInput}
             onChange={e => setTokenInput(e.target.value)}
             placeholder="http://localhost:3000/admin/verify#token=…"
             autoFocus
-            className="w-full px-4 py-3 bg-dark border border-gray-700 rounded-lg text-light placeholder-ash/40 focus:outline-none focus:border-red transition-colors text-sm font-mono resize-none"
+            className="w-full px-4 py-3 bg-dark border border-gray-700 rounded-lg text-light placeholder-ash/40 focus:outline-none focus:border-red transition-colors text-sm font-mono"
           />
         </div>
 
