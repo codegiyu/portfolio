@@ -52,6 +52,7 @@ const config = {
       },
       animation: {
         rebound: 'spring 10s ease-in-out infinite',
+        scan: 'spring 1.4s ease-in-out infinite',
       },
       keyframes: {
         spring: {
