@@ -290,11 +290,25 @@ const SETTINGS = {
 
 // ─── Runner ───────────────────────────────────────────────────────────────────
 
-async function seedProjects(db: FirebaseFirestore.Firestore) {
-  console.log('Seeding projects...');
-  const batch = db.batch();
+type Seeder = (db: FirebaseFirestore.Firestore, replace: boolean) => Promise<void>;
+
+async function seedProjects(db: FirebaseFirestore.Firestore, replace: boolean) {
+  console.log(`Seeding projects (${replace ? 'replace' : 'additive'})...`);
   const now = Timestamp.now();
-  for (const [index, project] of PROJECTS.entries()) {
+  let projectsToSeed = PROJECTS;
+
+  if (!replace) {
+    const snapshot = await db.collection('projects').get();
+    const existingSlugs = new Set(snapshot.docs.map(d => d.id));
+    projectsToSeed = PROJECTS.filter(p => !existingSlugs.has(p.slug));
+    if (projectsToSeed.length === 0) {
+      console.log('  ✓ no new projects to add');
+      return;
+    }
+  }
+
+  const batch = db.batch();
+  for (const project of projectsToSeed) {
     const ref = db.collection('projects').doc(project.slug);
     batch.set(
       ref,
@@ -306,7 +320,7 @@ async function seedProjects(db: FirebaseFirestore.Firestore) {
         publishedAt: now,
         createdAt: now,
         updatedAt: now,
-        sortOrder: index,
+        sortOrder: PROJECTS.indexOf(project),
         schemaVersion: 1,
         sourceHash: null,
         version: 1,
@@ -315,69 +329,140 @@ async function seedProjects(db: FirebaseFirestore.Firestore) {
     );
   }
   await batch.commit();
-  console.log(`  ✓ ${PROJECTS.length} projects seeded`);
+  console.log(`  ✓ ${projectsToSeed.length} project(s) seeded`);
 }
 
-async function seedAbout(db: FirebaseFirestore.Firestore) {
+async function seedAbout(db: FirebaseFirestore.Firestore, replace: boolean) {
+  const ref = db.collection('settings').doc('about');
   const now = Timestamp.now();
-  await db
-    .collection('settings')
-    .doc('about')
-    .set({ ...SETTINGS.about, updatedAt: now, version: 1 }, { merge: true });
-  console.log('  ✓ about seeded');
+  if (replace) {
+    await ref.set({ ...SETTINGS.about, updatedAt: now, version: 1 }, { merge: true });
+    console.log('  ✓ about replaced');
+  } else {
+    const existing = await ref.get();
+    if (existing.exists) {
+      console.log('  ✓ about already exists, skipped');
+    } else {
+      await ref.set({ ...SETTINGS.about, updatedAt: now, version: 1 });
+      console.log('  ✓ about seeded');
+    }
+  }
 }
 
-async function seedSkills(db: FirebaseFirestore.Firestore) {
+async function seedSkills(db: FirebaseFirestore.Firestore, replace: boolean) {
+  const ref = db.collection('settings').doc('skills');
   const now = Timestamp.now();
-  await db
-    .collection('settings')
-    .doc('skills')
-    .set({ ...SETTINGS.skills, updatedAt: now, version: 1 }, { merge: true });
-  console.log('  ✓ skills seeded');
+  if (replace) {
+    await ref.set({ ...SETTINGS.skills, updatedAt: now, version: 1 }, { merge: true });
+    console.log('  ✓ skills replaced');
+  } else {
+    const existing = await ref.get();
+    const data = existing.data() ?? {};
+    const existingActive: string[] = data.active ?? [];
+    // Union: preserve existing order/items, append new ones from seed
+    const mergedActive = [...new Set([...existingActive, ...SETTINGS.skills.active])];
+    // Seed icon paths are authoritative; existing icons fill gaps for admin-added skills
+    const mergedIcons = { ...(data.icons ?? {}), ...SETTINGS.skills.icons };
+    await ref.set(
+      { active: mergedActive, icons: mergedIcons, updatedAt: now, version: (data.version ?? 0) + 1 },
+      { merge: true }
+    );
+    const added = SETTINGS.skills.active.filter(s => !existingActive.includes(s));
+    console.log(
+      added.length ? `  ✓ skills merged (+${added.length}: ${added.join(', ')})` : '  ✓ skills up to date'
+    );
+  }
 }
 
-async function seedSocial(db: FirebaseFirestore.Firestore) {
+async function seedSocial(db: FirebaseFirestore.Firestore, replace: boolean) {
+  const ref = db.collection('settings').doc('social');
   const now = Timestamp.now();
-  await db
-    .collection('settings')
-    .doc('social')
-    .set({ links: SETTINGS.social, updatedAt: now, version: 1 }, { merge: true });
-  console.log('  ✓ social seeded');
+  if (replace) {
+    await ref.set({ links: SETTINGS.social, updatedAt: now, version: 1 }, { merge: true });
+    console.log('  ✓ social replaced');
+  } else {
+    const existing = await ref.get();
+    const data = existing.data() ?? {};
+    const existingLinks: Array<{ platform: string }> = data.links ?? [];
+    const existingPlatforms = new Set(existingLinks.map(l => l.platform));
+    const newLinks = SETTINGS.social.filter(l => !existingPlatforms.has(l.platform));
+    if (!newLinks.length) {
+      console.log('  ✓ social up to date');
+      return;
+    }
+    await ref.set(
+      { links: [...existingLinks, ...newLinks], updatedAt: now, version: (data.version ?? 0) + 1 },
+      { merge: true }
+    );
+    console.log(`  ✓ social merged (+${newLinks.length} platform(s))`);
+  }
 }
 
-async function seedContact(db: FirebaseFirestore.Firestore) {
+async function seedContact(db: FirebaseFirestore.Firestore, replace: boolean) {
+  const ref = db.collection('settings').doc('contact');
   const now = Timestamp.now();
-  await db
-    .collection('settings')
-    .doc('contact')
-    .set({ items: SETTINGS.contact, updatedAt: now, version: 1 }, { merge: true });
-  console.log('  ✓ contact seeded');
+  if (replace) {
+    await ref.set({ items: SETTINGS.contact, updatedAt: now, version: 1 }, { merge: true });
+    console.log('  ✓ contact replaced');
+  } else {
+    const existing = await ref.get();
+    const data = existing.data() ?? {};
+    const existingItems: Array<{ type: string }> = data.items ?? [];
+    const existingTypes = new Set(existingItems.map(i => i.type));
+    const newItems = SETTINGS.contact.filter(i => !existingTypes.has(i.type));
+    if (!newItems.length) {
+      console.log('  ✓ contact up to date');
+      return;
+    }
+    await ref.set(
+      { items: [...existingItems, ...newItems], updatedAt: now, version: (data.version ?? 0) + 1 },
+      { merge: true }
+    );
+    console.log(`  ✓ contact merged (+${newItems.length} item(s))`);
+  }
 }
 
-async function seedSpecialties(db: FirebaseFirestore.Firestore) {
+async function seedSpecialties(db: FirebaseFirestore.Firestore, replace: boolean) {
+  const ref = db.collection('settings').doc('specialties');
   const now = Timestamp.now();
-  await db
-    .collection('settings')
-    .doc('specialties')
-    .set({ cards: SETTINGS.specialties, updatedAt: now, version: 1 }, { merge: true });
-  console.log('  ✓ specialties seeded');
+  if (replace) {
+    await ref.set({ cards: SETTINGS.specialties, updatedAt: now, version: 1 }, { merge: true });
+    console.log('  ✓ specialties replaced');
+  } else {
+    const existing = await ref.get();
+    const data = existing.data() ?? {};
+    const existingCards: Array<{ label: string }> = data.cards ?? [];
+    const existingLabels = new Set(existingCards.map(c => c.label));
+    const newCards = SETTINGS.specialties.filter(c => !existingLabels.has(c.label));
+    if (!newCards.length) {
+      console.log('  ✓ specialties up to date');
+      return;
+    }
+    await ref.set(
+      { cards: [...existingCards, ...newCards], updatedAt: now, version: (data.version ?? 0) + 1 },
+      { merge: true }
+    );
+    console.log(`  ✓ specialties merged (+${newCards.length} card(s))`);
+  }
 }
 
 // ─── Dispatch ─────────────────────────────────────────────────────────────────
 
-const SECTIONS = {
+const SECTIONS: Record<string, Seeder> = {
   projects: seedProjects,
   about: seedAbout,
   skills: seedSkills,
   social: seedSocial,
   contact: seedContact,
   specialties: seedSpecialties,
-} as const;
+};
 
 type Section = keyof typeof SECTIONS;
 
 async function main() {
-  const requested = process.argv.slice(2) as Section[];
+  const args = process.argv.slice(2);
+  const replace = args.includes('--replace') || args.includes('-r');
+  const requested = args.filter(a => !a.startsWith('-')) as Section[];
   const unknown = requested.filter(s => !(s in SECTIONS));
   if (unknown.length) {
     console.error(`Unknown section(s): ${unknown.join(', ')}`);
@@ -387,11 +472,11 @@ async function main() {
 
   const toRun: Section[] = requested.length ? requested : (Object.keys(SECTIONS) as Section[]);
 
-  console.log('Connecting to Firestore...');
+  console.log(`Connecting to Firestore... [mode: ${replace ? 'replace' : 'additive'}]`);
   const db = getDb();
 
   for (const section of toRun) {
-    await SECTIONS[section](db);
+    await SECTIONS[section](db, replace);
   }
 
   console.log('\nSeed complete.');
