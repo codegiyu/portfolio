@@ -75,7 +75,14 @@ function SortableRow({ project, deleting, onDelete }: RowProps) {
 
       {/* title */}
       <div className="flex-1 min-w-0 px-4 py-4">
-        <p className="font-semibold text-light text-sm line-clamp-1">{project.title}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-semibold text-light text-sm line-clamp-1">{project.title}</p>
+          {project.status === 'draft' && (
+            <span className="flex-shrink-0 text-[9px] font-black uppercase tracking-wider text-ash/40 border border-white/[0.06] px-1.5 py-0.5">
+              Draft
+            </span>
+          )}
+        </div>
         <p className="text-xs text-ash/50 mt-0.5 font-mono">{project.slug}</p>
       </div>
 
