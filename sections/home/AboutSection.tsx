@@ -26,11 +26,7 @@ export const AboutSection = ({ about, social }: AboutSectionProps) => {
         keepalive: true,
       }).catch(() => {});
     }
-    const link = document.createElement('a');
-    link.href = about.cvUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.click();
+    window.open(about.cvUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
