@@ -459,9 +459,50 @@ const SECTIONS: Record<string, Seeder> = {
 
 type Section = keyof typeof SECTIONS;
 
+// Tags that each section affects in the Next.js Data Cache
+const SECTION_TAGS: Record<Section, string[]> = {
+  projects: ['projects'],
+  about: ['settings'],
+  skills: ['settings'],
+  social: ['settings'],
+  contact: ['settings'],
+  specialties: ['settings'],
+};
+
+async function revalidateCache(sections: Section[]) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!appUrl || !secret) {
+    console.warn(
+      '  ⚠ NEXT_PUBLIC_APP_URL or REVALIDATE_SECRET not set — skipping cache revalidation'
+    );
+    return;
+  }
+  const tags = [...new Set(sections.flatMap(s => SECTION_TAGS[s]))];
+  const url = `${appUrl}/api/revalidate`;
+  console.log(`\nRevalidating cache at ${appUrl} for tags: ${tags.join(', ')}...`);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${secret}` },
+      body: JSON.stringify({ tags }),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => res.statusText);
+      console.error(`  ✗ revalidation failed (${res.status}): ${text}`);
+    } else {
+      const json = (await res.json()) as { revalidated: string[] };
+      console.log(`  ✓ revalidated: ${json.revalidated.join(', ')}`);
+    }
+  } catch (err) {
+    console.error(`  ✗ revalidation request failed: ${err instanceof Error ? err.message : err}`);
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const replace = args.includes('--replace') || args.includes('-r');
+  const revalidate = args.includes('--revalidate');
   const requested = args.filter(a => !a.startsWith('-')) as Section[];
   const unknown = requested.filter(s => !(s in SECTIONS));
   if (unknown.length) {
@@ -472,12 +513,16 @@ async function main() {
 
   const toRun: Section[] = requested.length ? requested : (Object.keys(SECTIONS) as Section[]);
 
-  console.log(`Connecting to Firestore... [mode: ${replace ? 'replace' : 'additive'}]`);
+  console.log(
+    `Connecting to Firestore... [mode: ${replace ? 'replace' : 'additive'}${revalidate ? ', revalidate' : ''}]`
+  );
   const db = getDb();
 
   for (const section of toRun) {
     await SECTIONS[section](db, replace);
   }
+
+  if (revalidate) await revalidateCache(toRun);
 
   console.log('\nSeed complete.');
   process.exit(0);
