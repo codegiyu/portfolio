@@ -9,15 +9,17 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminLoginPage() {
   // If the visitor already has a valid session, skip the login page entirely.
+  // NOTE: redirect() throws internally — it must live outside the try/catch or it
+  // gets swallowed and the redirect never fires.
+  let authenticated = false;
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
-    if (token && (await getValidSession(token))) {
-      redirect('/admin/posts');
-    }
+    if (token) authenticated = await getValidSession(token);
   } catch {
     // Session check failure is non-fatal here — just show the login form.
   }
+  if (authenticated) redirect('/admin/posts');
 
   return (
     <div className="min-h-screen bg-darkBg flex flex-col items-center px-4 py-10">
