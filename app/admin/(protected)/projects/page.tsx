@@ -217,17 +217,13 @@ export default function AdminProjectsPage() {
           {!loading && (
             <p className="text-ash text-sm mt-1">
               {projects.length} project{projects.length !== 1 ? 's' : ''}
-              {saveState === 'saving' && (
-                <span className="ml-3 text-ash/50">Saving order…</span>
-              )}
+              {saveState === 'saving' && <span className="ml-3 text-ash/50">Saving order…</span>}
               {saveState === 'saved' && (
                 <span className="ml-3 text-green-500 inline-flex items-center gap-1">
                   <CheckIcon className="size-3" /> Saved
                 </span>
               )}
-              {saveState === 'error' && (
-                <span className="ml-3 text-red">Could not save order</span>
-              )}
+              {saveState === 'error' && <span className="ml-3 text-red">Could not save order</span>}
             </p>
           )}
         </div>
@@ -263,7 +259,9 @@ export default function AdminProjectsPage() {
         ) : projects.length === 0 ? (
           <div className="px-5 py-12 text-center text-ash text-sm">
             No projects yet.{' '}
-            <Link href="/admin/projects/new" className="text-red hover:underline underline-offset-4">
+            <Link
+              href="/admin/projects/new"
+              className="text-red hover:underline underline-offset-4">
               Add your first project
             </Link>
           </div>

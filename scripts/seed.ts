@@ -364,12 +364,19 @@ async function seedSkills(db: FirebaseFirestore.Firestore, replace: boolean) {
     // Seed icon paths are authoritative; existing icons fill gaps for admin-added skills
     const mergedIcons = { ...(data.icons ?? {}), ...SETTINGS.skills.icons };
     await ref.set(
-      { active: mergedActive, icons: mergedIcons, updatedAt: now, version: (data.version ?? 0) + 1 },
+      {
+        active: mergedActive,
+        icons: mergedIcons,
+        updatedAt: now,
+        version: (data.version ?? 0) + 1,
+      },
       { merge: true }
     );
     const added = SETTINGS.skills.active.filter(s => !existingActive.includes(s));
     console.log(
-      added.length ? `  ✓ skills merged (+${added.length}: ${added.join(', ')})` : '  ✓ skills up to date'
+      added.length
+        ? `  ✓ skills merged (+${added.length}: ${added.join(', ')})`
+        : '  ✓ skills up to date'
     );
   }
 }
