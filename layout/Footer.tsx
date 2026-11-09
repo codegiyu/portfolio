@@ -23,7 +23,10 @@ export const Footer = () => {
         </nav>
 
         <p className="text-xs text-ash/60">
-          &copy; {new Date().getFullYear()} Edward-Precious Omegbu
+          &copy; {new Date().getFullYear()}{' '}
+          <Link href="/admin" className="hover:text-ash/60">
+            Edward-Precious Omegbu
+          </Link>
         </p>
       </section>
     </footer>

@@ -86,14 +86,16 @@ function ProjectCard({ project }: { project: Project }) {
             ))}
           </div>
           {project.liveLink && (
-            <a
-              href={project.liveLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
+            <button
+              type="button"
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(project.liveLink!, '_blank', 'noopener,noreferrer');
+              }}
               className="text-ash/30 hover:text-red transition-colors flex-shrink-0">
               <ExternalLinkIcon className="size-3.5" />
-            </a>
+            </button>
           )}
         </div>
       </div>

@@ -205,6 +205,26 @@ export async function updateProject(
   }
 }
 
+export async function reorderProjects(slugsInOrder: string[]): Promise<void> {
+  const db = getDb();
+  try {
+    const snapshot = await db.collection(COLLECTION).get();
+    const slugToRef = new Map(
+      snapshot.docs
+        .filter(doc => typeof (doc.data() as { slug?: unknown }).slug === 'string')
+        .map(doc => [(doc.data() as { slug: string }).slug, doc.ref])
+    );
+    const batch = db.batch();
+    slugsInOrder.forEach((slug, index) => {
+      const ref = slugToRef.get(slug);
+      if (ref) batch.update(ref, { sortOrder: index });
+    });
+    await batch.commit();
+  } catch {
+    throw new ContentUnavailableError();
+  }
+}
+
 export async function deleteProject(slug: string): Promise<void> {
   const current = await getAdminProjectBySlug(slug);
   if (!current) throw new ContentNotFoundError('Project not found');
