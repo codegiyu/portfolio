@@ -2,6 +2,13 @@ import 'server-only';
 
 import { revalidatePath, revalidateTag } from 'next/cache';
 
+export function invalidateProjects() {
+  revalidateTag('projects', { expire: 0 });
+  revalidatePath('/');
+  revalidatePath('/projects');
+  revalidatePath('/sitemap.xml');
+}
+
 export function invalidateProject(slug: string) {
   revalidateTag('projects', { expire: 0 });
   revalidateTag(`project:${slug}`, { expire: 0 });
