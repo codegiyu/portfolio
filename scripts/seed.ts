@@ -470,11 +470,14 @@ const SECTION_TAGS: Record<Section, string[]> = {
 };
 
 async function revalidateCache(sections: Section[]) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  // REVALIDATE_URL is the target app to bust (usually production).
+  // Falls back to NEXT_PUBLIC_APP_URL, but that is typically http://localhost:3000
+  // in .env.local, so set REVALIDATE_URL explicitly for cross-environment busting.
+  const appUrl = process.env.REVALIDATE_URL ?? process.env.NEXT_PUBLIC_APP_URL;
   const secret = process.env.REVALIDATE_SECRET;
   if (!appUrl || !secret) {
     console.warn(
-      '  ⚠ NEXT_PUBLIC_APP_URL or REVALIDATE_SECRET not set — skipping cache revalidation'
+      '  ⚠ REVALIDATE_URL (or NEXT_PUBLIC_APP_URL) and REVALIDATE_SECRET must be set — skipping cache revalidation'
     );
     return;
   }
